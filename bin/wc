@@ -1,0 +1,5 @@
+#!/usr/bin/fish
+
+for path in $argv
+    wc -l (lib/path $path) | awk '{ print $1 }'
+end

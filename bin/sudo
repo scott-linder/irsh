@@ -1,0 +1,55 @@
+#!/usr/bin/fish
+
+source lib/opts.fish
+source lib/line.fish
+source lib/sudo.fish
+
+opts gla:d: "$argv"
+
+set globals
+set locals
+set add
+set delete
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-g'
+            set globals 1
+        case '-l'
+            set locals 1
+        case '-a'
+            set i (math $i+1)
+            set add $flags[$i]
+        case '-d'
+            set i (math $i+1)
+            set delete $flags[$i]
+    end
+    set i (math $i+1)
+end
+
+set local_sudoers etc/sudoers.d/$CHAN
+
+if test -n "$globals"
+    set sudoers (cat etc/sudoers | tr \n ' ')
+    echo "global sudoers: $sudoers"
+else if test -n "$locals"
+    if test -f $local_sudoers
+        set sudoers (cat $local_sudoers | tr \n ' ')
+        if test -n "$sudoers"
+            echo "channel is privileged, with local sudoers: $sudoers"
+        else
+            echo "channel is privileged, with no local sudoers"
+        end
+    else
+        echo "channel is unprivileged"
+    end
+else if sudoer
+    if test -z "$flags"
+        echo "Aquaman says you're cool."
+    else if test -n "$add"
+        line_add $add $local_sudoers
+    else if test -n "$delete"
+        line_del $delete $local_sudoers
+    end
+end

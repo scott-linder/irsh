@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+
+from os import path, sep, environ
+from sys import argv
+
+def chan_path(chan, path):
+    if sep in path:
+        # Strictly we would require a leading sep; as we do not have more than one
+        # level of directories we simply treat `/chan/file` and `chan/file`
+        # equivalently. The latter is easier to work with, so we normalize to it.
+        # Thus the only time it is required to lead with sep is in the case where
+        # only the root (i.e. `/`) or a chan (e.g. `/chan`) is specified, as
+        # otherwise this would be interpreted as a file alone.
+        if path.startswith(sep):
+            path = path.lstrip(sep)
+        splits = path.split(sep)
+        chan = splits[0]
+        name = ''.join(splits[1:])
+    else:
+        name = path
+    return 'var/root/{}/{}'.format(chan, name).replace('..', '')
+
+if __name__ == '__main__':
+    chan = environ['CHAN']
+    path = ' '.join(argv[1:])
+    print(chan_path(chan, path))

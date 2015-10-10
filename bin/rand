@@ -1,0 +1,5 @@
+#!/usr/bin/fish
+
+for file in $argv
+    cat (lib/path $file) | sort -R | head -1; or exit $status
+end

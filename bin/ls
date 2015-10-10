@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+
+if test -n "$argv"
+    for path in $argv
+        ls (lib/path $path); or exit $status
+    end
+else
+    ls (lib/path /$CHAN)
+end

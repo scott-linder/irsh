@@ -1,0 +1,14 @@
+#!/usr/bin/fish
+
+source lib/irc.fish
+source lib/line.fish
+source lib/sudo.fish
+
+if sudoer
+    for chan in $argv
+        set chan (clean_chan $chan)
+        join $chan
+        line_add $chan var/chans
+        mkdir -p var/root/$chan
+    end
+end

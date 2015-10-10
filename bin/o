@@ -1,0 +1,18 @@
+#!/usr/bin/fish
+
+function o
+    cat /dev/urandom | tr -dc 'oO' | head -c $argv[1]
+end
+
+if test (count $argv) -eq 0
+    o (math (random)%64+4)
+else if test (count $argv) -eq 1
+    set n (echo $argv[1] | tr -cd '[:digit:]')
+    if test -n "$n"
+        o (echo $argv[1] | tr -cd '[:digit:]')
+    else
+        echo not a number
+    end
+else
+    echo invalid commandline
+end

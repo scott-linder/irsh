@@ -1,0 +1,1 @@
+tail [file]... | print last line of files to standard output

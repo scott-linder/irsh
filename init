@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+
+import socket
+import shlex
+import subprocess
+import re
+import configparser
+import logging
+import sys
+import os
+import imp
+path = imp.load_source('path', 'lib/path')
+
+def send(msg):
+    log.info('>{}'.format(msg))
+    s.send('{}\r\n'.format(msg).encode('utf-8'))
+
+def recv():
+    return s.recv(512).decode('utf-8')
+
+def parse_msg(msg):
+    match = MSG_RE.match(msg)
+    if match:
+        return (match.group('prefix'), match.group('command'),
+                match.group('params'), match.group('trail'))
+    else:
+        return (None, None, None, None)
+
+def parse_prefix(prefix):
+    match = PREFIX_RE.match(prefix)
+    return (match.group('nick'), match.group('user'), match.group('host'))
+
+def sanitize_path(path):
+    return path.replace('/', '')
+
+def open_cmd_fifo():
+    try:
+        os.mkfifo('var/cmd')
+    except OSError:
+        pass
+    return os.fdopen(os.open('var/cmd', os.O_RDONLY | os.O_NONBLOCK), 'r')
+
+def run(commandline, env):
+    commands = commandline.split('|')
+    processes = []
+
+    cmd_fifo = open_cmd_fifo()
+
+    for i, command in enumerate(commands):
+
+        if i == 0:
+            stdin = subprocess.DEVNULL
+        else:
+            stdin = processes[i - 1].stdout
+
+        argv = shlex.split(command)
+
+        if '>>' in argv:
+            j = argv.index('>>')
+            argv.pop(j)
+            try:
+                chan_path = path.chan_path(env['CHAN'], argv.pop(j))
+                stdout = open(chan_path, 'a+')
+            except IndexError:
+                return (255, '', 'bad redirect', '')
+            except OSError as e:
+                return (e.errno, '', str(e), '')
+        else:
+            stdout = subprocess.PIPE
+
+        bin_path = os.path.join('bin', sanitize_path(argv[0]))
+        if os.path.isfile(bin_path):
+            argv[0] = bin_path
+        else:
+            argv.insert(0, 'bin/rand')
+
+        try:
+            processes.append(subprocess.Popen(argv,
+                                              stdin=stdin,
+                                              stdout=stdout,
+                                              stderr=subprocess.PIPE,
+                                              env=env))
+        except FileNotFoundError as e:
+            return (e.errno, '', str(e), '')
+
+        if stdout != subprocess.PIPE:
+            stdout.close()
+
+    (stdout, stderr) = processes[-1].communicate()
+    status = processes[0].wait()
+    if stdout:
+        stdout = stdout.decode('utf-8')
+    else:
+        stdout = ''
+
+    cmds = cmd_fifo.readlines()
+    cmd_fifo.close()
+
+    return (status, stdout, stderr.decode('utf-8'), cmds)
+
+# from http://news.anarchy46.net/2012/01/irc-message-regex.html
+MSG_RE = re.compile(r'^(:(?P<prefix>\S+) )?(?P<command>\S+)( (?!:)(?P<params>.+?))?( :(?P<trail>.+))?\r$')
+PREFIX_RE = re.compile(r'(?P<nick>\S+)!(?P<user>\S+)@(?P<host>\S+)')
+
+config = configparser.ConfigParser()
+config.read('etc/irsh.ini')
+config = config['irsh']
+HOST = config['host']
+PORT = int(config['port'])
+NICK = config['nick']
+USER = config['user']
+LEADER = config['leader']
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler(sys.stderr))
+log.setLevel(logging.DEBUG)
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+
+send('NICK {}'.format(NICK))
+send('USER {}'.format(USER))
+with open('var/chans') as chans:
+    for chan in chans:
+        chan = chan.rstrip()
+        try:
+            os.makedirs(path.chan_path(chan, ''))
+        except OSError:
+            pass
+        send('JOIN {}'.format(chan))
+
+
+while True:
+    msg = recv()
+    log.info(msg)
+    prefix, command, params, trail = parse_msg(msg)
+    if command == 'PING':
+        send('PONG {} {}'.format(params, trail))
+    elif command == 'PRIVMSG':
+        nick, _, _ = parse_prefix(prefix)
+        target = params
+        msg = trail
+
+        if target == NICK:
+            channel = nick
+        else:
+            channel = target
+
+        if msg.startswith(LEADER):
+            commandline = msg[len(LEADER):]
+            env = { 'NICK': nick, 'CHAN': channel }
+            status, stdout, stderr, cmds = run(commandline, env)
+            log.info('[{}] stdout: {} stderr: {} cmds: {}'
+                        .format(status, stdout, stderr, cmds))
+            for cmd in cmds:
+                send(cmd.rstrip())
+            resp = stdout.replace('\n', ' ')
+            if status != 0:
+                resp += ' [{}] {}'.format(status, stderr.replace('\n', ' '))
+            if resp:
+                send('PRIVMSG {} :{}'.format(channel, resp))

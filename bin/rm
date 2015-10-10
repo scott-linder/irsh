@@ -1,0 +1,5 @@
+#!/usr/bin/fish
+
+for file in $argv
+    rm (lib/path $file); or exit $status
+end

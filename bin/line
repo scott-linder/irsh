@@ -1,0 +1,8 @@
+#!/usr/bin/fish
+
+if test (count $argv) -eq 2
+    set n (echo $argv[1] | tr -cd '[:digit:]')
+    sed -n $n'p' (lib/path $argv[2])
+else
+    echo bad commandline
+end

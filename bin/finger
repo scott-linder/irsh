@@ -1,0 +1,3 @@
+#!/usr/bin/fish
+
+finger $argv ^&1 | head -1

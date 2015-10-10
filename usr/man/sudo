@@ -1,0 +1,1 @@
+sudo [-g] [-l] [-a nick] [-d nick] | check/modify per-channel sudo privileges | -g lists global sudoers | -l lists local sudoers | -a adds a local sudoer | -d deletes a local sudoer

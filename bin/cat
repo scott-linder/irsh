@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+
+if test -n "$argv"
+    for path in $argv
+        cat (lib/path $path); or exit $status
+    end
+else
+    cat
+end

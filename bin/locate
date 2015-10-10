@@ -1,0 +1,5 @@
+#!/usr/bin/fish
+
+for path in $argv
+    readlink -f (lib/path $path); or exit $status
+end

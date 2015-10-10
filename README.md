@@ -1,0 +1,4 @@
+irsh
+====
+
+Internet Relay SHell
