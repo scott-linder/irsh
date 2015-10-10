@@ -63,7 +63,10 @@ def run(commandline, env):
         else:
             stdin = processes[i - 1].stdout
 
-        argv = shlex.split(command)
+        try:
+            argv = shlex.split(command)
+        except ValueError as e:
+            return (255, '', str(e), '')
 
         if '>>' in argv:
             j = argv.index('>>')
