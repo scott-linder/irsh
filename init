@@ -30,6 +30,16 @@ def parse_prefix(prefix):
     match = PREFIX_RE.match(prefix)
     return (match.group('nick'), match.group('user'), match.group('host'))
 
+def is_ignored(nick):
+    try:
+        with open('etc/ignore', 'r') as f:
+            for line in f:
+                if line.rstrip() == nick:
+                    return True
+    except OSError:
+        pass
+    return False
+
 def sanitize_path(path):
     return path.replace('/', '')
 
@@ -138,6 +148,8 @@ while True:
         send('PONG {} {}'.format(params, trail))
     elif command == 'PRIVMSG':
         nick, _, _ = parse_prefix(prefix)
+        if is_ignored(nick):
+            continue
         target = params
         msg = trail
 
