@@ -1,8 +1,8 @@
 #!/usr/bin/fish
 
-source lib/opts.fish
-source lib/line.fish
-source lib/sudo.fish
+. lib/opts.fish
+. lib/line.fish
+. lib/sudo.fish
 
 opts gla:d: "$argv"
 

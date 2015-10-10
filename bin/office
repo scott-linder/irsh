@@ -1,6 +1,6 @@
 #!/usr/bin/fish
 
-source lib/opts.fish
+. lib/opts.fish
 
 set base_url "http://shrek.dhcp.io:5001"
 

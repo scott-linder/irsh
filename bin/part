@@ -1,8 +1,8 @@
 #!/usr/bin/fish
 
-source lib/irc.fish
-source lib/line.fish
-source lib/sudo.fish
+. lib/irc.fish
+. lib/line.fish
+. lib/sudo.fish
 
 if sudoer
     for chan in $argv

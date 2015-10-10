@@ -1,6 +1,6 @@
 #!/usr/bin/fish
 
-source lib/color.fish
+. lib/color.fish
 
 while read line
     rainbow $line

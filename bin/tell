@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
-source lib/irc.fish
-source lib/sudo.fish
+. lib/irc.fish
+. lib/sudo.fish
 
 if sudoer
     if test (count $argv) -ge 1
