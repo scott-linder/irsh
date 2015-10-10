@@ -1,0 +1,1 @@
+do [action]... | make fish do an action, supplied on commandline or via standard input
