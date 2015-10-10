@@ -128,17 +128,24 @@ log.setLevel(logging.DEBUG)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 
+try:
+    os.mkdir('var')
+except OSError:
+    pass
+
 send('NICK {}'.format(NICK))
 send('USER {}'.format(USER))
-with open('var/chans') as chans:
-    for chan in chans:
-        chan = chan.rstrip()
-        try:
-            os.makedirs(path.chan_path(chan, ''))
-        except OSError:
-            pass
-        send('JOIN {}'.format(chan))
-
+try:
+    with open('var/chans') as chans:
+        for chan in chans:
+            chan = chan.rstrip()
+            try:
+                os.makedirs(path.chan_path(chan, ''))
+            except OSError:
+                pass
+            send('JOIN {}'.format(chan))
+except OSError:
+    pass
 
 while True:
     msg = recv()
@@ -160,7 +167,7 @@ while True:
 
         if msg.startswith(LEADER):
             commandline = msg[len(LEADER):]
-            env = { 'NICK': nick, 'CHAN': channel }
+            env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
             status, stdout, stderr, cmds = run(commandline, env)
             log.info('[{}] stdout: {} stderr: {} cmds: {}'
                         .format(status, stdout, stderr, cmds))
