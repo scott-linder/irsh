@@ -11,7 +11,7 @@ if sudoer
         else
             set to_say (cat)
         end
-        echo PRIVMSG $to_chan :$to_say >var/cmd
+        echo PRIVMSG $to_chan ":$to_say" >var/cmd
     else
         echo invalid commandline
     end
