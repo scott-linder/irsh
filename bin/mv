@@ -1,13 +1,17 @@
 #!/usr/bin/fish
 
-if test (count $argv) -eq 2
-    set src (lib/path $argv[1])
-    set dest (lib/path $argv[2])
-    if not test -f $dest
-        mv $src $dest
+. lib/sudo.fish
+
+if sudoer
+    if test (count $argv) -eq 2
+        set src (lib/path $argv[1])
+        set dest (lib/path $argv[2])
+        if not test -f $dest
+            mv $src $dest
+        else
+            echo destination exists
+        end
     else
-        echo destination exists
+        echo invalid commandline
     end
-else
-    echo invalid commandline
 end

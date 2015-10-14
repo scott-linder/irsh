@@ -1,5 +1,9 @@
 #!/usr/bin/fish
 
-for file in $argv
-    rm (lib/path $file); or exit $status
+. lib/sudo.fish
+
+if sudoer
+    for file in $argv
+        rm (lib/path $file); or exit $status
+    end
 end
