@@ -152,10 +152,10 @@ except OSError:
 
 while True:
     msg = recv()
-    log.info(msg)
+    log.info(msg.rstrip())
     prefix, command, params, trail = parse_msg(msg)
     if command == 'PING':
-        send('PONG {} {}'.format(params, trail))
+        send('PONG {}'.format(trail))
     elif command == 'PRIVMSG':
         nick, _, _ = parse_prefix(prefix)
         if is_ignored(nick):
