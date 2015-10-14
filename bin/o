@@ -9,7 +9,7 @@ if test (count $argv) -eq 0
 else if test (count $argv) -eq 1
     set n (echo $argv[1] | tr -cd '[:digit:]')
     if test -n "$n"
-        o (echo $argv[1] | tr -cd '[:digit:]')
+        o $n
     else
         echo not a number
     end
