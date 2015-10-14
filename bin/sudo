@@ -4,7 +4,7 @@
 . lib/line.fish
 . lib/sudo.fish
 
-opts gla:d: "$argv"
+opts gla:d: $argv
 
 set globals
 set locals

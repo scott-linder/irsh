@@ -1,22 +1,21 @@
 #!/usr/bin/fish
-#
-. lib/file.fish
+
 . lib/opts.fish
 
-opts ci "$argv"
+opts ci $argv
 
-set pattern (echo $rest[1..-2])
-set file (lib/path $rest[-1])
-
-if test -n "$pattern" -a -n "$file" -a -f "$file"
-    switch $status
-        case 0
-            grep $flags $pattern $file | sort -R | head -1
-        case 1
-            echo no matching lines
-        case '*'
-            echo grep error
+set pattern $argv[1]
+set files ''
+if test (count $argv) -ge 2
+    for file in $argv[2..-1]
+        set files files (lib/path $file)
     end
+else
+    set files '-'
+end
+
+if test -n "$pattern"
+    grep -h $flags -e $pattern $files | bin/rand; or exit $status
 else
     echo invalid pattern or file
 end

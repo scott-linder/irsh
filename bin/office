@@ -4,7 +4,7 @@
 
 set base_url "http://shrek.dhcp.io:5001"
 
-opts r:d:l "$argv"
+opts r:d:l $argv
 
 set reg
 set dereg
