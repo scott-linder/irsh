@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import socket
-import shlex
-import subprocess
-import re
 import configparser
-import logging
-import sys
-import os
 import imp
+import logging
+import os
+import re
+import shlex
+import socket
+import subprocess
+import sys
 path = imp.load_source('path', 'lib/path')
 
 def send(msg):
@@ -16,7 +16,9 @@ def send(msg):
     s.send('{}\r\n'.format(msg).encode('utf-8'))
 
 def recv():
-    return s.recv(512).decode('utf-8')
+    msg = sf.readline()
+    log.info('<{}'.format(msg.rstrip()))
+    return msg
 
 def parse_msg(msg):
     match = MSG_RE.match(msg)
@@ -28,7 +30,10 @@ def parse_msg(msg):
 
 def parse_prefix(prefix):
     match = PREFIX_RE.match(prefix)
-    return (match.group('nick'), match.group('user'), match.group('host'))
+    if match:
+        return (match.group('nick'), match.group('user'), match.group('host'))
+    else:
+        return (None, None, None)
 
 def is_ignored(nick):
     try:
@@ -112,7 +117,7 @@ def run(commandline, env):
     return (status, stdout, stderr.decode('utf-8'), cmds)
 
 # from http://news.anarchy46.net/2012/01/irc-message-regex.html
-MSG_RE = re.compile(r'^(:(?P<prefix>\S+) )?(?P<command>\S+)( (?!:)(?P<params>.+?))?( :(?P<trail>.+))?\r$')
+MSG_RE = re.compile(r'^(:(?P<prefix>\S+) )?(?P<command>\S+)( (?!:)(?P<params>.+?))?( :(?P<trail>.+))?$')
 PREFIX_RE = re.compile(r'(?P<nick>\S+)!(?P<user>\S+)@(?P<host>\S+)')
 
 config = configparser.ConfigParser()
@@ -130,6 +135,7 @@ log.setLevel(logging.DEBUG)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
+sf = s.makefile()
 
 try:
     os.mkdir('var')
@@ -152,10 +158,9 @@ except OSError:
 
 while True:
     msg = recv()
-    log.info(msg.rstrip())
     prefix, command, params, trail = parse_msg(msg)
     if command == 'PING':
-        send('PONG {}'.format(trail))
+        send('PONG :{}'.format(trail))
     elif command == 'PRIVMSG':
         nick, _, _ = parse_prefix(prefix)
         if is_ignored(nick):
@@ -172,7 +177,7 @@ while True:
             commandline = msg[len(LEADER):]
             env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
             status, stdout, stderr, cmds = run(commandline, env)
-            log.info('[{}] stdout: {} stderr: {} cmds: {}'
+            log.info('[{}]\nstdout:\n{}\nstderr:\n{}\ncmds: {}'
                         .format(status, stdout, stderr, cmds))
             for cmd in cmds:
                 send(cmd.rstrip())
