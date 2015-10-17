@@ -1,0 +1,15 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts Rr $argv
+
+if test -n "$pos"
+    set files
+    for file in $pos
+        set files $files (lib/path $file)
+    end
+    sort $flags $files
+else
+    sort $flags
+end
