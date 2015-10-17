@@ -186,3 +186,5 @@ while True:
                 resp += ' [{}] {}'.format(status, stderr.replace('\n', ' '))
             if resp:
                 send('PRIVMSG {} :{}'.format(channel, resp))
+            with open('var/status', 'w') as f:
+                f.write('{}\n'.format(status))
