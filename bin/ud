@@ -1,0 +1,8 @@
+#!/usr/bin/fish
+
+set api 'http://api.urbandictionary.com/v0/define?term='
+set py 'import json; print(json.loads(input())["list"][0]["definition"])'
+
+for term in $argv
+    curl -s -m 10 $api(echo $term | tr -d '&') | python3 -c $py
+end
