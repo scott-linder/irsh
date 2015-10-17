@@ -57,6 +57,10 @@ def open_cmd_fifo():
 
 def run(commandline, env):
     commands = commandline.split('|')
+
+    if len(commands)-1 > MAXPIPES:
+        return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES), [])
+
     processes = []
 
     cmd_fifo = open_cmd_fifo()
@@ -71,7 +75,7 @@ def run(commandline, env):
         try:
             argv = shlex.split(command)
         except ValueError as e:
-            return (255, '', str(e), '')
+            return (255, '', str(e), [])
 
         if '>>' in argv:
             j = argv.index('>>')
@@ -80,13 +84,17 @@ def run(commandline, env):
                 chan_path = path.chan_path(env['CHAN'], argv.pop(j))
                 stdout = open(chan_path, 'a+')
             except IndexError:
-                return (255, '', 'bad redirect', '')
+                return (255, '', 'bad redirect', [])
             except OSError as e:
-                return (e.errno, '', str(e), '')
+                return (e.errno, '', str(e), [])
         else:
             stdout = subprocess.PIPE
 
-        bin_path = os.path.join('bin', sanitize_path(argv[0]))
+        if len(argv) > 0:
+            bin_path = os.path.join('bin', sanitize_path(argv[0]))
+        else:
+            bin_path = ''
+
         if os.path.isfile(bin_path):
             argv[0] = bin_path
         else:
@@ -99,7 +107,7 @@ def run(commandline, env):
                                               stderr=subprocess.PIPE,
                                               env=env))
         except FileNotFoundError as e:
-            return (e.errno, '', str(e), '')
+            return (e.errno, '', str(e), [])
 
         if stdout != subprocess.PIPE:
             stdout.close()
@@ -128,6 +136,7 @@ PORT = int(config['port'])
 NICK = config['nick']
 USER = config['user']
 LEADER = config['leader']
+MAXPIPES = int(config['maxpipes'])
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler(sys.stderr))
@@ -181,10 +190,11 @@ while True:
                         .format(status, stdout, stderr, cmds))
             for cmd in cmds:
                 send(cmd.rstrip())
-            resp = stdout.replace('\n', ' ')
-            if status != 0:
-                resp += ' [{}] {}'.format(status, stderr.replace('\n', ' '))
+            resp = stdout.rstrip().replace('\n', ' | ') + stderr.rstrip().replace('\n', ' | ')
             if resp:
-                send('PRIVMSG {} :{}'.format(channel, resp))
+                resp = 'PRIVMSG {} :{}'.format(channel, resp)
+                if len(resp) > 510:
+                    resp = resp[:510]
+                send(resp)
             with open('var/status', 'w') as f:
                 f.write('{}\n'.format(status))
