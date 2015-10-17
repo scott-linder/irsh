@@ -26,12 +26,12 @@ function opts -d 'Helper to parse options into $flags and $argv'
     end
     set -l opts (opts_getopts $fmt $args)
     set -l sep (opts_find_sep $opts)
-    set -g flags ''
-    set -g rest ''
+    set -g flags
+    set -g pos
     if test $sep != 1
         set flags $opts[1..(math $sep-1)]
     end
     if test $sep != (count $opts)
-        set rest $opts[(math $sep+1)..-1]
+        set pos $opts[(math $sep+1)..-1]
     end
 end

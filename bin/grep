@@ -4,11 +4,11 @@
 
 opts ci $argv
 
-set pattern $argv[1]
-set files ''
-if test (count $argv) -ge 2
-    for file in $argv[2..-1]
-        set files files (lib/path $file)
+set pattern $pos[1]
+set files
+if test (count $pos) -ge 2
+    for file in $pos[2..-1]
+        set files $files (lib/path $file)
     end
 else
     set files '-'

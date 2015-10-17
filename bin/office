@@ -26,13 +26,13 @@ while test $i -le (count $flags)
 end
 
 if test -n "$reg"
-    curl -m 10 -d "nick=$nick&mac=$reg" "$base_url/reg"
+    curl -s -m 10 -d "nick=$NICK&mac=$reg" "$base_url/reg"
 else if test -n "$dereg"
-    curl -m 10 -d "nick=$nick&mac=$dereg" "$base_url/dereg"
+    curl -s -m 10 -d "nick=$NICK&mac=$dereg" "$base_url/dereg"
 else if test -n "$list"
-    curl -m 10 -d "nick=$nick" "$base_url/list"
+    curl -s -m 10 -d "nick=$NICK" "$base_url/list"
 else
-    set around (curl -m 10 "$base_url/plain")
+    set around (curl -s -m 10 "$base_url/plain")
     if test -z "$around"
         set around 'no user machines active'
     end
