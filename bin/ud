@@ -4,5 +4,5 @@ set api 'http://api.urbandictionary.com/v0/define?term='
 set py 'import json; print(json.loads(input())["list"][0]["definition"])'
 
 for term in $argv
-    curl -s -m 10 $api(echo $term | tr -d '&') | python3 -c $py
+    curl -s -m 10 $api(echo $term | sed 's/&/%26/') | python3 -c $py | head -1
 end
