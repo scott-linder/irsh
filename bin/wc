@@ -1,5 +1,17 @@
 #!/usr/bin/fish
 
-for path in $argv
-    wc -l (lib/path $path) | awk '{ print $1 }'
+. lib/opts.fish
+
+opts cw $argv
+
+if test -z "$flags"
+    set flags -l
+end
+
+if test -n "$pos"
+    for path in $pos
+        wc $flags (lib/path $path) | awk '{ print $1 }'
+    end
+else
+    cat | wc $flags
 end

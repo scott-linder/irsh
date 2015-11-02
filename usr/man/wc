@@ -1,1 +1,1 @@
-wc [file]... | count lines of files
+wc [-c] [-w] [file]... | count lines of files or standard input | -c counts bytes | -w counts words
