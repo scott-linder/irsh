@@ -14,6 +14,8 @@ Create a configuration file `etc/irsh.ini`:
     nick = irsh
     user = irsh localhost localhost :irsh
     leader = $
+    maxpipes = 5
+    timeout = 5
 
 Leader must prefix all commands.
 
