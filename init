@@ -173,7 +173,10 @@ except OSError:
     pass
 
 while True:
-    msg = recv()
+    try:
+        msg = recv()
+    except UnicodeDecodeError:
+        continue
     prefix, command, params, trail = parse_msg(msg)
     if command == 'PING':
         send('PONG :{}'.format(trail))
