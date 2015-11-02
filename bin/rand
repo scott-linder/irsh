@@ -2,7 +2,7 @@
 
 if test -n "$argv"
     for file in $argv
-        cat (lib/path $file) | sort -R | head -1; or exit $status
+        cat (lib/path $file) ^/dev/null | sort -R | head -1; or exit $status
     end
 else
     sort -R | head -1; or exit $status
