@@ -1,3 +1,0 @@
-#!/usr/bin/fish
-
-echo $rest | ~/bin/rustpn | tr \n ' '
