@@ -15,7 +15,7 @@ else
 end
 
 if test -n "$pattern"
-    grep -h $flags -e $pattern $files | bin/rand; or exit $status
+    grep -h $flags -e $pattern $files
 else
     echo invalid pattern or file
 end
