@@ -30,7 +30,7 @@ if test -n "$reg"
 else if test -n "$dereg"
     curl -s -m 10 -d "nick=$NICK&mac=$dereg" "$base_url/dereg"
 else if test -n "$list"
-    curl -s -m 10 -d "nick=$NICK" "$base_url/list"
+    curl -s -m 10 "$base_url/list/$NICK"
 else
     set around (curl -s -m 10 "$base_url/plain")
     if test -z "$around"
