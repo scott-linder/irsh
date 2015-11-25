@@ -1,0 +1,10 @@
+#!/usr/bin/fish
+
+. lib/color.fish
+
+if test -n "$argv"
+    set text "$argv"
+else
+    set text (cat)
+end
+echo (color 03)">implying $text"(color)
