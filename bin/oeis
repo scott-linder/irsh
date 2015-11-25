@@ -1,6 +1,6 @@
 #!/usr/bin/fish
 
-set s (curl "http://oeis.org/search?fmt=text&q=$rest" |\
+set s (curl -s "http://oeis.org/search?fmt=text&q=$argv" |\
         sed -n 's/^%N \(.*\)/\1/p' | head -1)
 
 if test -n "$s"
