@@ -17,7 +17,7 @@ Create a configuration file `etc/irsh.ini`:
     maxpipes = 5
     timeout = 5
 
-Leader must prefix all commands.
+The leader must prefix all commands.
 
 Start irsh by running `init` and then message the bot to join channels:
 
@@ -59,14 +59,14 @@ The layout of the source directory is similar to a modern Unix filesystem:
         root/ - user "filesystem" root
 
 The most interesting directory tree is `var/root`, which is the root of the
-"filesystem" which is visible to bot users in channel. Beneath it there is
-a directory for each channel which the bot joins. Paths are all relative
-to this directory. When a command originates from a channel, it is considered
-to be the "current working directory" and relative paths are relative to it.
-If the path contains a directory separator (a forward slash), it is considered
-to be absolute, and is relative to `var/root`. This is implemented by passing
-all user-defined paths as an argument to the `lib/path` binary, which returns
-the corrected path.
+"filesystem" which is visible to bot users in channel. Beneath it there is a
+directory for each channel which the bot joins. Relative paths (i.e. those not
+containing a directory separator: `/`) are relative to the directory
+corresponding to the channel the message originated from. If the path contains
+a directory separator it is considered to be absolute, and is relative to
+`var/root`. This is implemented by passing all user-defined paths as an
+argument to the `lib/path` binary, which returns the corrected path. It is the
+duty of each command to ensure that paths are sanitized thus.
 
 Commands
 --------
@@ -79,7 +79,8 @@ a fatal error occurs, because otherwise the standard error is not displayed.
 
 Commands receive arguments through argv as expected. If the command is written
 in fish there is a utility library, `lib/opts.fish` which defines a function
-`opts` which extracts `$flags` from the argv via `getopt`. An example use is:
+`opts` which extracts `$flags` and `$pos` (positional arguments) from the argv
+via `getopt`. An example use is:
 
 ```fish
 #!/usr/bin/fish
@@ -113,7 +114,7 @@ by writing to the `var/cmd` named pipe; any command written here will be sent
 verbatim to the IRC server. For example, `bin/join` sends `JOIN #channel\r\n`
 by writing to `var/cmd`.
 
-It is the command's responsibility to ensure undue access is not granted to the
+It is each command's responsibility to ensure undue access is not granted to the
 user. Specifically, path arguments which are accepted by the command *must* be
 filtered through `lib/path`, and care must be taken when invoking other
 commands that arguments which might be interpreted as flags are not.
