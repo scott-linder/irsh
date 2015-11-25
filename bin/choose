@@ -1,0 +1,3 @@
+#!/usr/bin/fish
+
+echo $argv[(math (random)%(count $argv)+1)]
