@@ -130,6 +130,12 @@ def run(commandline, env):
 
     return (status, stdout, stderr.decode('utf-8'), cmds)
 
+def ensure_dir(d):
+    try:
+        os.mkdir(d)
+    except OSError:
+        pass
+
 # from http://news.anarchy46.net/2012/01/irc-message-regex.html
 MSG_RE = re.compile(r'^(:(?P<prefix>\S+) )?(?P<command>\S+)( (?!:)(?P<params>.+?))?( :(?P<trail>.+))?$')
 PREFIX_RE = re.compile(r'(?P<nick>\S+)!(?P<user>\S+)@(?P<host>\S+)')
@@ -153,10 +159,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 sf = s.makefile()
 
-try:
-    os.mkdir('var')
-except OSError:
-    pass
+ensure_dir('var')
 
 send('NICK {}'.format(NICK))
 send('USER {}'.format(USER))
@@ -189,6 +192,7 @@ while True:
 
         if target == NICK:
             channel = nick
+            ensure_dir(path.chan_path(nick, ''))
         else:
             channel = target
 
