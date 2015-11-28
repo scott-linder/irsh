@@ -1,13 +1,6 @@
 #!/usr/bin/fish
 
 set api 'http://api.urbandictionary.com/v0/define'
-set py 'import json;
-import sys;
-s=sys.stdin.buffer.raw.readall().decode("utf-8")
-r=json.loads(s)["list"][0]["definition"].encode("utf-8")
-sys.stdout.buffer.write(r)
-'
 
-for term in $argv
-    curl -s -G $api --data-urlencode "term=$term" | python3 -c $py | head -1
-end
+curl -s -G $api --data-urlencode "term=$argv" |\
+    jq -r '.["list"][0]["definition"]' | head -1
