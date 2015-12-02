@@ -1,0 +1,52 @@
+#!/usr/bin/fish
+
+# http://developer.wordnik.com/docs.html
+
+. lib/opts.fish
+
+set api 'http://api.wordnik.com/v4'
+function word
+    curl -s -H 'api_key: '(cat etc/wordnik) "$api/$argv"
+end
+
+opts dtra $argv
+
+set def
+set topex
+set allex
+set related
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-d'
+            set def 1
+        case '-t'
+            set topex 1
+        case '-a'
+            set allex 1
+        case '-r'
+            set related 1
+    end
+    set i (math $i+1)
+end
+
+if test -n "$pos"
+    set term "$pos"
+else
+    set term (word words.json/randomWord | jq -r '.["word"]')
+    echo $term
+end
+
+if test -n "$def"
+    word "word.json/$term/definitions" | jq -r '.[]["text"]'
+end
+if test -n "$topex"
+    word "word.json/$term/topExample" | jq -r '.["text"]'
+end
+if test -n "$allex"
+    word "word.json/$term/examples" | jq -r '.["examples"][]["text"]'
+end
+if test -n "$related"
+    word "word.json/$term/relatedWords" | jq -r '.[]["words"][]'
+end

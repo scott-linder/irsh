@@ -1,0 +1,1 @@
+word [-d|-t|-a|-r] [term] | note: if no term is specified a random one is generated | -d get all definitions of term | -t get top example of term | -a get all examples of term | -r get related terms
