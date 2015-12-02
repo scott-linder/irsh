@@ -1,5 +1,9 @@
 #!/usr/bin/fish
 
-for path in $argv
-    head -1 (lib/path $path); or exit $status
+if test -n "$argv"
+    for path in $argv
+        head -1 (lib/path $path); or exit $status
+    end
+else
+    cat | head -1
 end
