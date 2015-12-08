@@ -3,4 +3,4 @@
 set api 'http://api.urbandictionary.com/v0/define'
 
 curl -s -G $api --data-urlencode "term=$argv" |\
-    jq -r '.["list"][0]["definition"]' | head -1
+    jq -r '.list[0].definition' | head -1
