@@ -1,0 +1,26 @@
+#!/usr/bin/fish
+
+set full_upper Ａ Ｂ Ｃ Ｄ Ｅ Ｆ Ｇ Ｈ Ｉ Ｊ Ｋ Ｌ Ｍ Ｎ Ｏ Ｐ Ｑ Ｒ Ｓ Ｔ Ｕ Ｖ Ｗ Ｘ Ｙ Ｚ
+set full_lower ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ ｉ ｊ ｋ ｌ ｍ ｎ ｏ ｐ ｑ ｒ ｓ ｔ ｕ ｖ ｗ ｘ ｙ ｚ
+
+function ord
+    printf $argv[1] | od -A n -t d1
+end
+
+function full
+    for char in (echo "$argv" | fold -w1)
+        if test (ord $char) -ge (ord A) -a (ord $char) -le (ord Z)
+            echo -n $full_upper[(math (ord $char)-(ord A)+1)]
+        else if test (ord $char) -ge (ord a) -a (ord $char) -le (ord z)
+            echo -n $full_lower[(math (ord $char)-(ord a)+1)]
+        else
+            echo -n $char
+        end
+    end
+end
+
+if test -n "$argv"
+    full $argv
+else
+    full (cat)
+end
