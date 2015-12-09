@@ -5,4 +5,4 @@ if test -n "$argv"
 else
     set to_say (cat)
 end
-echo '><{{{*> -- ( '$to_say' )'
+echo "><{{{*> -- ( $to_say )"
