@@ -2,15 +2,19 @@
 
 . lib/opts.fish
 
-opts r $argv
+opts ri: $argv
 
 set rand
+set item 0
 
 set i 1
 while test $i -le (count $flags)
     switch $flags[$i]
         case '-r'
             set rand 1
+        case '-i'
+            set i (math $i+1)
+            set item $flags[$i]
     end
     set i (math $i+1)
 end
@@ -22,8 +26,8 @@ function clean
 end
 
 if test -n "$rand"
-    curl -s -G $api/random | jq -r '.list[0]|.word,.definition' | clean
+    curl -s -G $api/random | jq -r ".list[$item]|.word,.definition" | clean
 else
     curl -s -G $api/define --data-urlencode "term=$pos" |\
-        jq -r '.list[0].definition' | clean
+        jq -r ".list[$item].definition" | clean
 end

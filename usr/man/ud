@@ -1,1 +1,1 @@
-ud [-r] [string] | search urban dictionary for a term | -r returns a random term instead
+ud [-r] [-i index] [string] | search urban dictionary for a term | -r returns a random term instead | -i returns the i'th result (indexed from 0)
