@@ -1,6 +1,29 @@
 #!/usr/bin/fish
 
-set api 'http://api.urbandictionary.com/v0/define'
+. lib/opts.fish
 
-curl -s -G $api --data-urlencode "term=$argv" |\
-    jq -r '.list[0].definition' | head -1
+opts r $argv
+
+set rand
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-r'
+            set rand 1
+    end
+    set i (math $i+1)
+end
+
+set api 'http://api.urbandictionary.com/v0'
+
+function clean
+    tr -d \r | sed '/^\s*$/d'
+end
+
+if test -n "$rand"
+    curl -s -G $api/random | jq -r '.list[0]|.word,.definition' | clean
+else
+    curl -s -G $api/define --data-urlencode "term=$pos" |\
+        jq -r '.list[0].definition' | clean
+end
