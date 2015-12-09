@@ -15,7 +15,7 @@ function opts_getopts -d 'Parse commandline options from args'
         set args $argv[2..-1]
     end
     set args (getopt -s sh $fmt $args)
-    fish -c "for arg in $args; echo \$arg; end"
+    fish -c "for arg in $args; printf \"%s\n\" \$arg; end"
 end
 
 function opts -d 'Helper to parse options into $flags and $argv'
