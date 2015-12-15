@@ -1,0 +1,40 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+set base_url "http://shrek.dhcp.io:5001"
+
+opts r:d:l $argv
+
+set reg
+set dereg
+set list
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-r'
+            set i (math $i+1)
+            set reg $flags[$i]
+        case '-d'
+            set i (math $i+1)
+            set dereg $flags[$i]
+        case '-l'
+            set list 1
+    end
+    set i (math $i+1)
+end
+
+if test -n "$reg"
+    curl -s -m 10 -d "nick=$NICK&mac=$reg" "$base_url/reg"
+else if test -n "$dereg"
+    curl -s -m 10 -d "nick=$NICK&mac=$dereg" "$base_url/dereg"
+else if test -n "$list"
+    curl -s -m 10 "$base_url/list/$NICK"
+else
+    set around (curl -s -m 10 "$base_url/plain")
+    if test -z "$around"
+        set around 'no user machines active'
+    end
+    echo $around
+end
