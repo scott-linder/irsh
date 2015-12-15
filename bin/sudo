@@ -4,35 +4,23 @@
 . lib/line.fish
 . lib/sudo.fish
 
-opts ga:d: $argv
+opts l $argv
 
-set globals
-set add
-set delete
+set list
 
 set i 1
 while test $i -le (count $flags)
     switch $flags[$i]
-        case '-g'
-            set globals 1
-        case '-a'
-            set i (math $i+1)
-            set add $flags[$i]
-        case '-d'
-            set i (math $i+1)
-            set delete $flags[$i]
+        case '-l'
+            set list 1
     end
     set i (math $i+1)
 end
 
-if test -n "$globals"
+if test -n "$list"
     cat etc/sudoers
 else if sudoer
     if test -z "$flags"
         echo "Aquaman says you're cool."
-    else if test -n "$add"
-        line_add $add $local_sudoers
-    else if test -n "$delete"
-        line_del $delete $local_sudoers
     end
 end
