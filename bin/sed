@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+
+if test (count $argv) -eq 2
+    sed -e $argv[1] (lib/path $argv[2])
+else if test (count $argv) -eq 1
+    sed -e $argv[1]
+else
+    echo bad commandline
+end
