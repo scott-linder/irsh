@@ -2,14 +2,31 @@
 
 . lib/irc.fish
 . lib/sudo.fish
+. lib/opts.fish
+
+opts a $argv
+
+set action
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-a'
+            set action 1
+    end
+    set i (math $i+1)
+end
 
 if sudoer
-    if test (count $argv) -ge 1
-        set to_chan (clean_chan $argv[1])
-        if test (count $argv) -ge 2
-            set to_say $argv[2..-1]
+    if test (count $pos) -ge 1
+        set to_chan (clean_chan $pos[1])
+        if test (count $pos) -ge 2
+            set to_say $pos[2..-1]
         else
             set to_say (cat)
+        end
+        if test -n "$action"
+            set to_say \001"ACTION $to_say"
         end
         echo PRIVMSG $to_chan ":$to_say" >var/cmd
     else

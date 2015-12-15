@@ -1,7 +1,0 @@
-#!/usr/bin/fish
-
-if test -n "$argv"
-    echo \001"ACTION $argv"
-else
-    echo \001'ACTION '(cat)
-end
