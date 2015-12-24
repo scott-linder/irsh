@@ -1,0 +1,29 @@
+#!/usr/bin/fish
+
+set 9 9
+set 5 17
+
+set Z (math "($5-$9)*4")
+set M (date '+%M')
+set H (date '+%H')
+if test $H -lt $9
+    set N 0
+else if test $H -gt $5
+    set N $Z
+else
+    set N (math "$M/15+($H-$9)*4")
+end
+
+echo -n 9\[
+
+set i 0
+while test $i -lt $N
+    echo -n '#'
+    set i (math $i+1)
+end
+while test $i -lt $Z
+    echo -n '.'
+    set i (math $i+1)
+end
+
+echo \]5
