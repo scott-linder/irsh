@@ -1,0 +1,4 @@
+#!/usr/bin/fish
+
+set nick (echo "$argv" | tr -d '/')
+cat "var/last/$nick"
