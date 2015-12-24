@@ -56,7 +56,7 @@ def open_cmd_fifo():
     return os.fdopen(os.open('var/cmd', os.O_RDONLY | os.O_NONBLOCK), 'r')
 
 def run(commandline, env):
-    commands = commandline.split('|')
+    commands = [re.sub(r'\\\|', '|', s) for s in re.split(r'(?<!\\)\|', commandline)]
 
     if len(commands)-1 > MAXPIPES:
         return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES), [])
