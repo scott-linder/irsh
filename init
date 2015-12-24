@@ -196,9 +196,14 @@ while True:
         else:
             channel = target
 
+        env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
+
+        for f in os.listdir('lib/filter'):
+            argv = ['lib/filter/{}'.format(f), msg]
+            subprocess.Popen(argv, env=env).communicate()
+
         if msg.startswith(LEADER):
             commandline = msg[len(LEADER):]
-            env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
             status, stdout, stderr, cmds = run(commandline, env)
             log.info('[{}]\nstdout:\n{}\nstderr:\n{}\ncmds: {}'
                         .format(status, stdout, stderr, cmds))
