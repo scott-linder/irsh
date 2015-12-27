@@ -1,1 +1,1 @@
-last nick | return last message sent by given nick
+last [-r] nick | get time, channel, and contents of last message sent by given nick | -r raw message (no time or channel)
