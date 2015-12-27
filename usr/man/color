@@ -1,0 +1,1 @@
+color [-roygbiv] [-x] [string] | print arguments or standard input in any color | -roygbiv rainbow colors | -x random color

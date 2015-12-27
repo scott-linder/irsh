@@ -1,0 +1,38 @@
+#!/usr/bin/fish
+
+. lib/color.fish
+. lib/opts.fish
+
+opts roygbivx $argv
+
+set c
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case -r
+            set c 04
+        case -o
+            set c 07
+        case -y
+            set c 08
+        case -g
+            set c 09
+        case -b
+            set c 10
+        case -i
+            set c 02
+        case -v
+            set c 13
+        case -x
+            set c (random_color)
+    end
+    set i (math $i+1)
+end
+
+color $c
+if test -n "$pos"
+    echo $pos
+else
+    cat
+end
