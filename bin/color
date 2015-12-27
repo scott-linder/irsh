@@ -25,7 +25,8 @@ while test $i -le (count $flags)
         case -v
             set c 13
         case -x
-            set c (random_color)
+            set roygbiv 04 07 08 09 10 02 13
+            set c $roygbiv[(math (random)%(count $roygbiv)+1)]
     end
     set i (math $i+1)
 end
