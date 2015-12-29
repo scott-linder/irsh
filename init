@@ -185,8 +185,6 @@ while True:
         send('PONG :{}'.format(trail))
     elif command == 'PRIVMSG':
         nick, _, _ = parse_prefix(prefix)
-        if is_ignored(nick):
-            continue
         target = params
         msg = trail
 
@@ -201,6 +199,9 @@ while True:
         for f in os.listdir('lib/filter'):
             argv = ['lib/filter/{}'.format(f), msg]
             subprocess.Popen(argv, env=env).communicate()
+
+        if is_ignored(nick):
+            continue
 
         if msg.startswith(LEADER):
             commandline = msg[len(LEADER):]
