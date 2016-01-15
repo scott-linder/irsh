@@ -1,0 +1,3 @@
+#!/usr/bin/fish
+
+ln -s -r (lib/path $argv[1]) (lib/path $argv[2])
