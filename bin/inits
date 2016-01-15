@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+
+function randword
+    cat etc/dict | grep "^$argv" | sort -R | head -1 | tr \n ' '
+end
+
+for char in (echo $argv[1] | tr -dc '[:alpha:]' | fold -w1)
+    randword $char
+end
