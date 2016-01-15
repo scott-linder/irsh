@@ -1,1 +1,1 @@
-color [-roygbiv] [-x] [string] | print arguments or standard input in any color | -roygbiv rainbow colors | -x random color
+color [-roygbiv] [string] | print arguments or standard input in a (random by default) color | -roygbiv each letter selects a color (e.g. -r for red, -o for orange, etc.)
