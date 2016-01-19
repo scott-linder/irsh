@@ -1,0 +1,1 @@
+bell [string] | ring the doorbell, optionally with a custom message | messages are rate limited to 1 every 10 seconds

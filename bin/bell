@@ -1,0 +1,12 @@
+#!/usr/bin/fish
+
+if test -z "$argv"
+    set msg "ring ring ring I am a door bell, check IRC please"
+else if test "$argv" = "-"
+    set msg (cat)
+    echo "$msg"
+else
+    set msg "$argv"
+end
+
+echo "$msg" | nc shrek.dhcp.io 6311
