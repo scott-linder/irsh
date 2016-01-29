@@ -1,0 +1,31 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts n: $argv
+
+set n
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-n'
+            set i (math $i+1)
+            set n (echo $flags[$i] | tr -dc '[:digit:]')
+    end
+    set i (math $i+1)
+end
+
+if test -z "$n"
+    set n (math (random)%10+2)
+end
+
+if test -n "$pos"
+    set msg "$pos"
+else
+    set msg (cat)
+end
+
+for i in (seq $n)
+    echo -n $msg' '
+end

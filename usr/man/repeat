@@ -1,0 +1,1 @@
+repeat [-n count] [string] | repeat a string or stdin a random number of times | -n specifies the number of times
