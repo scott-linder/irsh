@@ -32,9 +32,13 @@ else if test -n "$dereg"
 else if test -n "$list"
     curl -s -m 10 "$base_url/list/$NICK"
 else
-    set around (curl -s -m 10 "$base_url/plain")
+    set around (curl -s "$base_url/plain")
+    set door (echo -e "door status\r" \
+                | nc shrek.dhcp.io 1357 \
+                | sed -e 's/open/\x0309open\x0f/' \
+                      -e 's/closed/\x0304closed\x0f/')
     if test -z "$around"
         set around 'no user machines active'
     end
-    echo $around
+    echo "$around; $door"
 end
