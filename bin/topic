@@ -1,0 +1,40 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts ad $argv
+
+set add
+set del
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-a'
+            set add 1
+        case '-d'
+            set del 1
+    end
+    set i (math $i+1)
+end
+
+mkdir -p var/topic
+touch var/topic/$CHAN
+
+if test -n "$add"
+    if test -n "$pos"
+        echo $pos | tr -d '|' >>var/topic/$CHAN
+    else
+        cat | tr -d '|' >>var/topic/$CHAN
+    end
+else if test -n "$del"
+    set n (echo $pos | tr -dc '[:digit:]')
+    sed -i $n'd' var/topic/$CHAN
+else
+    echo 'error: no operation selected'
+    exit 1
+end
+
+set topic (cat var/topic/$CHAN | paste -d'|' -s - | sed 's/|/ | /g')
+
+echo TOPIC $CHAN ":$topic" >var/cmd
