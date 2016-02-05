@@ -1,12 +1,7 @@
 #!/usr/bin/fish
 
 if test -z "$argv"
-    set msg "ring ring ring I am a door bell, check IRC please"
-else if test "$argv" = "-"
-    set msg (cat)
-    echo "$msg"
+    echo -e "$NICK: ring bell\r" | nc shrek.dhcp.io 1357
 else
-    set msg "$argv"
+    echo 'invalid commandline; bell no longer accepts arguments'
 end
-
-echo "$msg" | nc shrek.dhcp.io 6311
