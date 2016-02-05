@@ -1,1 +1,1 @@
-topic ([-a [string]]|[-d number]) | manage topic | -a add string (or stdin) as a new topic | -d remove topic at line number (indexed from 1)
+topic (-a|-d number|-i number) [topic] | manage topic | note: all commands indexed from 1 | -a add a topic | -d delete a topic | -i insert a topic
