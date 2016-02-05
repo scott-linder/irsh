@@ -1,3 +1,22 @@
 #!/usr/bin/fish
 
-fortune -so
+. lib/opts.fish
+
+opts l $argv
+
+set long
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-l'
+            set long 1
+    end
+    set i (math $i+1)
+end
+
+if test -n "$long"
+    fortune -o
+else
+    fortune -so
+end
