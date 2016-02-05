@@ -1,8 +1,5 @@
 #!/usr/bin/fish
 
-while read line
-    for char in (echo $line | fold -w1)
-        echo -n $char' '
-    end
-    echo
+for char in (cat | lib/chars)
+    echo -n $char' '
 end

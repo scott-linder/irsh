@@ -1,7 +1,23 @@
 #!/usr/bin/fish
 
 . lib/color.fish
+. lib/opts.fish
 
-while read line
-    rainbow $line
+opts w $argv
+
+set words
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-w'
+            set words 1
+    end
+    set i (math $i+1)
+end
+
+if test -n "$words"
+    rainbow_words (cat)
+else
+    rainbow (cat)
 end
