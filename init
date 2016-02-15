@@ -9,6 +9,7 @@ import shlex
 import socket
 import subprocess
 import sys
+import glob
 path = imp.load_source('path', 'lib/path')
 
 def send(msg):
@@ -106,6 +107,8 @@ def run(commandline, env):
                                               stdout=stdout,
                                               stderr=subprocess.PIPE,
                                               env=env))
+        except PermissionError:
+            pass
         except FileNotFoundError as e:
             return (e.errno, '', str(e), [])
 
@@ -196,9 +199,12 @@ while True:
 
         env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
 
-        for f in os.listdir('lib/filter'):
-            argv = ['lib/filter/{}'.format(f), msg]
-            subprocess.Popen(argv, env=env).communicate()
+        for f in glob.glob('lib/filter/*'):
+            argv = [f, msg]
+            try:
+                subprocess.Popen(argv, env=env).communicate()
+            except PermissionError:
+                pass
 
         if is_ignored(nick):
             continue
