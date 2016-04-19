@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+# Regex from https://github.com/ashafer01/Nextrastout/blob/master/functions/parse_karma.php
+
+mkdir "var/karma";
+
+open ($f, '>>', "var/karma/$ENV{'CHAN'}");
+$_ = join(' ', @ARGV);
+$t = time;
+
+my %seen;
+while ($_ =~ /\b([!-&*-~]+?)(\+\+|--)(?![!-~])/cg ||
+        $_ =~ /\(([ -~]+?)\)(\+\+|--)(?![!-~])/g) {
+    if (!$seen{"$2"}++) {
+        print $f "$t $ENV{'NICK'} $2 $1\n";
+    }
+}

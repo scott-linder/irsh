@@ -1,0 +1,63 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+. lib/sed.fish
+
+opts vgrn:a:b: $argv
+
+set verbose
+set global
+set regexp
+set nick
+set after 0
+set before (date '+%s')
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-v'
+            set verbose 1
+        case '-g'
+            set global 1
+        case '-r'
+            set regexp 1
+        case '-n'
+            set i (math $i+1)
+            set nick $flags[$i]
+        case '-a'
+            set i (math $i+1)
+            set after (date -d $flags[$i] '+%s')
+        case '-b'
+            set i (math $i+1)
+            set before (date -d $flags[$i] '+%s')
+    end
+    set i (math $i+1)
+end
+
+if test -n "$global"
+    set files var/karma/*
+else
+    set files var/karma/$CHAN
+end
+
+if test -n "$regexp"
+    set grep_flags -cE
+else
+    set grep_flags -cxF
+end
+
+if test -n "$nick"
+    set nick_regexp (sed_escape_regexp $nick)
+else
+    set nick_regexp '\S\+'
+end
+
+set plus  (awk "\$1 > $after && \$1 < $before { print }" $files | sed "s/\S\+ $nick_regexp ++ \(.*\)/\1/" | grep $grep_flags "$pos")
+set minus (awk "\$1 > $after && \$1 < $before { print }" $files | sed "s/\S\+ $nick_regexp -- \(.*\)/\1/" | grep $grep_flags "$pos")
+set total (math $plus-$minus)
+
+if test -n "$verbose"
+    echo $total "(+$plus/-$minus)"
+else
+    echo $total
+end
