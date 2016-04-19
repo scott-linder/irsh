@@ -2,7 +2,7 @@
 
 . lib/opts.fish
 
-opts civ $argv
+opts civn $argv
 
 set pattern $pos[1]
 set files
