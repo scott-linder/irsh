@@ -60,11 +60,9 @@ def run(commandline, env):
     commands = [re.sub(r'\\\|', '|', s) for s in re.split(r'(?<!\\)\|', commandline)]
 
     if len(commands)-1 > MAXPIPES:
-        return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES), [])
+        return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES))
 
     processes = []
-
-    cmd_fifo = open_cmd_fifo()
 
     for i, command in enumerate(commands):
 
@@ -76,7 +74,7 @@ def run(commandline, env):
         try:
             argv = shlex.split(command)
         except ValueError as e:
-            return (255, '', str(e), [])
+            return (255, '', str(e))
 
         if '>>' in argv:
             j = argv.index('>>')
@@ -85,9 +83,9 @@ def run(commandline, env):
                 chan_path = path.chan_path(env['CHAN'], argv.pop(j))
                 stdout = open(chan_path, 'a+')
             except IndexError:
-                return (255, '', 'bad redirect', [])
+                return (255, '', 'bad redirect')
             except OSError as e:
-                return (e.errno, '', str(e), [])
+                return (e.errno, '', str(e))
         else:
             stdout = subprocess.PIPE
 
@@ -110,7 +108,7 @@ def run(commandline, env):
         except PermissionError:
             pass
         except FileNotFoundError as e:
-            return (e.errno, '', str(e), [])
+            return (e.errno, '', str(e))
 
         if stdout != subprocess.PIPE:
             stdout.close()
@@ -121,17 +119,14 @@ def run(commandline, env):
     except subprocess.TimeoutExpired:
         processes[-1].kill()
         _ = processes[-1].communicate()
-        return (255, '', 'timed out after {} seconds'.format(TIMEOUT), [])
+        return (255, '', 'timed out after {} seconds'.format(TIMEOUT))
 
     if stdout:
         stdout = stdout.decode('utf-8')
     else:
         stdout = ''
 
-    cmds = cmd_fifo.readlines()
-    cmd_fifo.close()
-
-    return (status, stdout, stderr.decode('utf-8'), cmds)
+    return (status, stdout, stderr.decode('utf-8'))
 
 def ensure_dir(d):
     try:
@@ -178,49 +173,52 @@ try:
 except OSError:
     pass
 
+cmd_fifo = open_cmd_fifo()
+
 while True:
     try:
         msg = recv()
-    except UnicodeDecodeError:
-        continue
-    prefix, command, params, trail = parse_msg(msg)
-    if command == 'PING':
-        send('PONG :{}'.format(trail))
-    elif command == 'PRIVMSG':
-        nick, _, _ = parse_prefix(prefix)
-        target = params
-        msg = trail
+        prefix, command, params, trail = parse_msg(msg)
+        if command == 'PING':
+            send('PONG :{}'.format(trail))
+        elif command == 'PRIVMSG':
+            nick, _, _ = parse_prefix(prefix)
+            if is_ignored(nick):
+                continue
+            target = params
+            msg = trail
 
-        if target == NICK:
-            channel = nick
-            ensure_dir(path.chan_path(nick, ''))
-        else:
-            channel = target
+            if target == NICK:
+                channel = nick
+            else:
+                channel = target
 
-        env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
+            env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
 
-        for f in glob.glob('lib/filter/*'):
-            argv = [f, msg]
-            try:
-                subprocess.Popen(argv, env=env).communicate()
-            except PermissionError:
-                pass
+            for f in glob.glob('lib/filter/*'):
+                argv = [f, msg]
+                try:
+                    subprocess.Popen(argv, env=env).communicate()
+                except PermissionError:
+                    pass
 
-        if is_ignored(nick):
-            continue
+            if msg.startswith(LEADER):
+                commandline = msg[len(LEADER):]
+                status, stdout, stderr = run(commandline, env)
+                log.info('[{}]\nstdout:\n{}\nstderr:\n{}'
+                            .format(status, stdout, stderr))
+                resp = stdout.rstrip().replace('\n', ' | ') + stderr.rstrip().replace('\n', ' | ')
+                if resp:
+                    resp = 'PRIVMSG {} :{}'.format(channel, resp).encode('utf-8')
+                    if len(resp) > 510:
+                        resp = resp[:510]
+                    send(resp.decode('utf-8', 'ignore'))
+                with open('var/status', 'w') as f:
+                    f.write('{}\n'.format(status))
 
-        if msg.startswith(LEADER):
-            commandline = msg[len(LEADER):]
-            status, stdout, stderr, cmds = run(commandline, env)
-            log.info('[{}]\nstdout:\n{}\nstderr:\n{}\ncmds: {}'
-                        .format(status, stdout, stderr, cmds))
+            cmds = cmd_fifo.readlines()
             for cmd in cmds:
                 send(cmd.rstrip())
-            resp = stdout.rstrip().replace('\n', ' | ') + stderr.rstrip().replace('\n', ' | ')
-            if resp:
-                resp = 'PRIVMSG {} :{}'.format(channel, resp)
-                if len(resp) > 510:
-                    resp = resp[:510]
-                send(resp)
-            with open('var/status', 'w') as f:
-                f.write('{}\n'.format(status))
+    except UnicodeDecodeError as e:
+        log.error("{}".format(e))
+        continue
