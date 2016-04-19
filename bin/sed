@@ -1,9 +1,13 @@
 #!/usr/bin/fish
 
-if test (count $argv) -eq 2
-    sed -e $argv[1] (lib/path $argv[2])
-else if test (count $argv) -eq 1
-    sed -e $argv[1]
+. lib/opts.fish
+
+opts n $argv
+
+if test (count $pos) -eq 2
+    sed $flags -e $pos[1] (lib/path $pos[2])
+else if test (count $pos) -eq 1
+    sed $flags -e $pos[1]
 else
     echo bad commandline
 end
