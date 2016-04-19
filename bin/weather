@@ -1,0 +1,7 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts Ff:l:u: $argv
+
+ansiweather -l Kalamazoo,US -u imperial -a no $flags | sed 's/^\s\+\(.*\)/\1/'

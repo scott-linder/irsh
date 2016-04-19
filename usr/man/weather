@@ -1,0 +1,1 @@
+weather [-F] [-f n] [-l loc] [-u units] | display current weather | -F display five day forecast | -f display n day forecast | -l choose location (default Kalamazoo,US) | -u choose unit system (imperial or metric)
