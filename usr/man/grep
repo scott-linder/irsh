@@ -1,1 +1,1 @@
-grep [-c] [-i] pattern [file]... | search for pattern in files | -c returns match count | -i ignores case
+grep [-c] [-i] [-n] pattern [file]... | search for pattern in files | -c returns match count | -i ignores case | -n prefix results with line numbers
