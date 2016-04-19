@@ -35,6 +35,7 @@ else
     set around (curl -s "$base_url/plain")
     set door (echo -e "door status\r" \
                 | nc shrek.dhcp.io 1357 \
+                | sed 's/The office door has been/door/' \
                 | sed -e 's/open/\x0309open\x0f/' \
                       -e 's/closed/\x0304closed\x0f/')
     if test -z "$around"
