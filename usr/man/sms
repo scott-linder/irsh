@@ -1,0 +1,1 @@
+sms [-r number] nick [message] | send message (or stdin) to nick via sms | -r registers a number under your current nick | note: sms responses will be sent to #geekboy via the sms bot

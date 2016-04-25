@@ -1,0 +1,43 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts r: $argv
+
+set reg
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-r'
+            set i (math $i+1)
+            set reg $flags[$i]
+    end
+    set i (math $i+1)
+end
+
+if test -n "$reg"
+    mkdir -p var/sms
+    set nick (echo $NICK | tr -d '/')
+    echo $reg >"var/sms/$nick"
+else
+    set auth (cat etc/twilio/auth)
+    set sid (cat etc/twilio/sid)
+    set from (cat etc/twilio/number)
+    set to_nick (echo $pos[1] | tr -d '/')
+    set to (cat "var/sms/$to_nick")
+    set body "<$NICK>"
+    if test (count $pos) -ge 2
+        set body $body $pos[2..-1]
+    else
+        set body $body (cat)
+    end
+
+    curl -s -X POST "https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json" \
+            --data-urlencode "From=$from"  \
+            --data-urlencode "To=$to"  \
+            --data-urlencode "Body=$body" \
+            -u "$sid:$auth" \
+        | jq -r '.message' \
+        | sed 's/null//'
+end
