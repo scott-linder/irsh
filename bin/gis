@@ -1,0 +1,12 @@
+#!/usr/bin/fish
+
+set api 'https://www.googleapis.com/customsearch/v1'
+set key (cat etc/google)
+
+curl -s -G $api \
+    --data-urlencode "q=$argv" \
+    --data-urlencode "cx=001680656005962934129:3ninki9vy-g" \
+    --data-urlencode "key=$key" \
+    --data-urlencode "searchType=image" \
+    | jq -r '.items[]|.link' \
+    | bin/rand
