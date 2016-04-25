@@ -3,5 +3,8 @@
 set api 'https://www.googleapis.com/customsearch/v1'
 set key (cat etc/google)
 
-set raw (curl -s -G $api --data-urlencode "q=$argv" --data-urlencode "cx=001680656005962934129:0xu3kr4du8w" --data-urlencode "key=$key")
-echo $raw | jq -r '.items[0]|.title,.link'
+curl -s -G $api \
+    --data-urlencode "q=$argv" \
+    --data-urlencode "cx=001680656005962934129:0xu3kr4du8w" \
+    --data-urlencode "key=$key" \
+    | jq -r '.items[0]|.title,.link'
