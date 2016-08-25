@@ -10,7 +10,7 @@ end
 
 function opts_getopts -d 'Parse commandline options from args'
     set -l fmt $argv[1]
-    set -l args ''
+    set -l args
     if test (count $argv) -gt 1
         set args $argv[2..-1]
     end
@@ -20,7 +20,7 @@ end
 
 function opts -d 'Helper to parse options into $flags and $argv'
     set -l fmt $argv[1]
-    set -l args ''
+    set -l args
     if test (count $argv) -gt 1
         set args $argv[2..-1]
     end
