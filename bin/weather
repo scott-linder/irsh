@@ -2,6 +2,15 @@
 
 . lib/opts.fish
 
-opts Ff:l:u: $argv
+opts Ff:u: $argv
 
-ansiweather -l Kalamazoo,US -u imperial -a no $flags | sed 's/^\s\+\(.*\)/\1/'
+if test (count $pos) -eq 0
+    set loc Kalamazoo,US
+else if test (count $pos) -eq 1
+    set loc $pos[1]
+else
+    echo invalid commandline
+    exit 1
+end
+
+ansiweather -l $loc -u imperial -a no $flags | sed 's/^\s\+\(.*\)/\1/'
