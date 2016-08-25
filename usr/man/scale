@@ -1,0 +1,2 @@
+scale from_label to_label amount | draw a scale, filled to amount/10 percent
+between the two labels
