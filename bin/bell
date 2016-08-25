@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 if test -z "$argv"
-    echo -e "$NICK: ring bell\r" | nc shrek.dhcp.io 1357
+    echo -e "$NICK: ring bell\r" | nc -w 2 ccshrek.duckdns.org 1357
 else
     echo 'invalid commandline; bell no longer accepts arguments'
 end
