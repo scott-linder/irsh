@@ -1,0 +1,43 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+
+opts f:t: $argv
+
+set from en
+set to es
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-f'
+            set i (math $i+1)
+            set from $flags[$i]
+        case '-t'
+            set i (math $i+1)
+            set to $flags[$i]
+    end
+    set i (math $i+1)
+end
+
+if test -n "$pos"
+    set text $pos
+else
+    set text (cat)
+end
+
+set client_secret (cat etc/microsoft)
+
+set access_token (curl -s -X POST 'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13/' \
+        --data-urlencode 'scope=http://api.microsofttranslator.com' \
+        --data-urlencode 'client_id=fish-bot' \
+        --data-urlencode "client_secret=$client_secret" \
+        --data-urlencode 'grant_type=client_credentials' \
+    | jq -r '.access_token')
+
+curl -s -G 'http://api.microsofttranslator.com/v2/Http.svc/Translate' \
+        --data-urlencode "from=$from" \
+        --data-urlencode "to=$to" \
+        --data-urlencode "text=$text" \
+        -H "Authorization: Bearer $access_token" \
+    | sed 's#<string xmlns="http://schemas.microsoft.com/2003/10/Serialization/">\(.*\)</string>#\1#'
