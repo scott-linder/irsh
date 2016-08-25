@@ -3,8 +3,14 @@
 set api 'https://www.googleapis.com/customsearch/v1'
 set key (cat etc/google)
 
+if test -n "$argv"
+    set q $argv
+else
+    set q (cat)
+end
+
 curl -s -G $api \
-    --data-urlencode "q=$argv" \
+    --data-urlencode "q=$q" \
     --data-urlencode "cx=001680656005962934129:3ninki9vy-g" \
     --data-urlencode "key=$key" \
     --data-urlencode "searchType=image" \
