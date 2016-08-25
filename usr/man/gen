@@ -1,0 +1,2 @@
+gen file | generate a new line similar to the lines in an existing file | samples
+from a random number of lines, and always ensures the last word is a terminating word from an existing line
