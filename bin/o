@@ -8,10 +8,10 @@ if test (count $argv) -eq 0
     o (math (random)%64+4)
 else if test (count $argv) -eq 1
     set n (echo $argv[1] | tr -cd '[:digit:]')
-    if test -n "$n"
+    if test -n "$n" -a "$n" -lt 300
         o $n
     else
-        echo not a number
+        echo 'not a valid number (<300)'
     end
 else
     echo invalid commandline
