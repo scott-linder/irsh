@@ -11,7 +11,7 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 try:
-    url = BASEURL.format(sys.argv[1])
+    url = BASEURL.format(sys.argv[1].replace(" ", "_"))
     soup = BeautifulSoup(urllib.request.urlopen(url), "lxml")
     p = soup.find("div", id="bodyContent").find("p", recursive=False)
     sys.stdout.buffer.write(p.getText().encode('utf-8'))
