@@ -1,0 +1,1 @@
+cowsay [string] | speaking cow | default string is read from stdin
