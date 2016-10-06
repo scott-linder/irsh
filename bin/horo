@@ -5,15 +5,15 @@
 set url http://www.theonion.com/features/horoscope
 
 if test (count $argv) -eq 0
-    echo invalid commandline
+    bin/man (basename (status -f))
     exit 1
+end
+
+set name (echo "$argv[1..-1]" | sed 's/^\(.*\)$/\u\1/')
+if test $name = Butt
+    cat /dev/urandom | tr -dc 'pPfF' | head -c (math (random)%64+4)
 else
-    set name (echo "$argv[1..-1]" | sed 's/^\(.*\)$/\u\1/')
-    if test $name = Butt
-        cat /dev/urandom | tr -dc 'pPfF' | head -c (math (random)%64+4)
-    else
-        curl -m 3 $url -s \
-            | awk "{ if (n) { print; n = 0; } } /astro-name..$name/ { n = 1; }" \
-            | sed 's/^\s\+//'
-    end
+    curl -m 3 $url -s \
+        | awk "{ if (n) { print; n = 0; } } /astro-name..$name/ { n = 1; }" \
+        | sed 's/^\s\+//'
 end

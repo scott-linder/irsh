@@ -12,7 +12,9 @@ else if test (count $argv) -eq 1
         o $n
     else
         echo 'not a valid number (<300)'
+        exit 1
     end
 else
-    echo invalid commandline
+    bin/man (basename (status -f))
+    exit 1
 end

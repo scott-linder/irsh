@@ -12,6 +12,7 @@ if sudoer
             echo destination exists
         end
     else
-        echo invalid commandline
+        bin/man (basename (status -f))
+        exit 1
     end
 end

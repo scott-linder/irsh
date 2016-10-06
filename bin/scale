@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 if test (count $argv) -ne 3
-    echo invalid commandline
+    bin/man (basename (status -f))
     exit 1
 end
 

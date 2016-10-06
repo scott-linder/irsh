@@ -9,7 +9,7 @@ if test (count $pos) -eq 0
 else if test (count $pos) -eq 1
     set loc $pos[1]
 else
-    echo invalid commandline
+    bin/man (basename (status -f))
     exit 1
 end
 
