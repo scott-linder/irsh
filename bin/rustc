@@ -12,5 +12,5 @@ fn main() {\
 "
 echo $code \
     | python3 -c 'import json; print(json.dumps({"code": input()}))' \
-    | curl -s --insecure -X POST -d @- -H 'Content-Type: application/json' 'https://play.rust-lang.org/evaluate.json' \
+    | curl -m 5 -s --insecure -X POST -d @- -H 'Content-Type: application/json' 'https://play.rust-lang.org/evaluate.json' \
     | python3 -c 'import json; print(json.loads(input())["result"]);'
