@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+from bs4 import BeautifulSoup
+import urllib
+import sys
+import json
+
+page = ' '.join(sys.argv[1:])
+
+def getsoup(title):
+    api = "https://uncyclopedia.wikia.com/api.php?"
+    params = urllib.parse.urlencode({
+        'action': 'parse',
+        'prop': 'text',
+        'section': '0',
+        'format': 'json',
+        'page': title,
+    })
+    url = api + params
+    try:
+        j = json.loads(urllib.request.urlopen(url).read().decode('utf-8'))
+        html = j['parse']['text']['*']
+    except:
+        # page does not exist, just return some search results
+        params = urllib.parse.urlencode({
+            'action': 'opensearch',
+            'search': page
+        })
+        url = api + params
+        html = urllib.request.urlopen(url).read().decode('utf-8')
+        sys.stdout.buffer.write(html.encode('utf-8'))
+        sys.exit(1)
+    return BeautifulSoup(html, 'lxml')
+
+# to follow redirects we loop until we actually get a full page
+while True:
+    soup = getsoup(page)
+    try:
+        sys.stdout.buffer.write(soup.find('p').get_text().encode('utf-8'))
+        break
+    except AttributeError:
+        a = soup.find('a')
+        page = a['title']
+        continue
