@@ -1,8 +1,9 @@
 #!/usr/bin/fish
 
-if test (count $argv) -ne 1
-    echo invalid commandline
-    exit 1
+if test (count $argv) -lt 1
+    set who $NICK
+else
+    set who "$argv"
 end
 
-echo "<+$argv[1]> it was me lol"
+echo "<+$who> it was me lol"
