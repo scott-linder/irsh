@@ -14,5 +14,6 @@ curl -s -G $api \
     --data-urlencode "cx=001680656005962934129:3ninki9vy-g" \
     --data-urlencode "key=$key" \
     --data-urlencode "searchType=image" \
+    --data-urlencode "safe=high" \
     | jq -r '.items[]|.link' \
     | bin/rand
