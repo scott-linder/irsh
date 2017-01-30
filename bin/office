@@ -25,6 +25,7 @@ while test $i -le (count $flags)
     set i (math $i+1)
 end
 
+echo -n "$NICK: "
 if test -n "$reg"
     curl -s -m 2 -d "nick=$NICK&mac=$reg" "$base_url/reg"
 else if test -n "$dereg"
