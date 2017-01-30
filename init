@@ -161,17 +161,6 @@ ensure_dir('var')
 
 send('NICK {}'.format(NICK))
 send('USER {}'.format(USER))
-try:
-    with open('var/chans') as chans:
-        for chan in chans:
-            chan = chan.rstrip()
-            try:
-                os.makedirs(path.chan_path(chan, ''))
-            except OSError:
-                pass
-            send('JOIN {}'.format(chan))
-except OSError:
-    pass
 
 cmd_fifo = open_cmd_fifo()
 
@@ -179,7 +168,19 @@ while True:
     try:
         msg = recv()
         prefix, command, params, trail = parse_msg(msg)
-        if command == 'PING':
+        if command == "001":
+            try:
+                with open('var/chans') as chans:
+                    for chan in chans:
+                        chan = chan.rstrip()
+                        try:
+                            os.makedirs(path.chan_path(chan, ''))
+                        except OSError:
+                            pass
+                        send('JOIN {}'.format(chan))
+            except OSError:
+                pass
+        elif command == 'PING':
             send('PONG :{}'.format(trail))
         elif command == 'PRIVMSG':
             nick, _, _ = parse_prefix(prefix)
