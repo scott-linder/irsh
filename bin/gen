@@ -1,11 +1,27 @@
 #!/usr/bin/fish
 
-if test (count $argv) != 1
+. lib/opts.fish
+
+opts n: $argv
+
+if test (count $pos) != 1
     bin/man (basename (status -f))
     exit 1
 end
 
-set source (lib/path $argv[1])
+set words
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-n'
+            set i (math $i+1)
+            set words (echo $flags[$i] | tr -dc '[:digit:]')
+    end
+    set i (math $i+1)
+end
+
+set source (lib/path $pos[1])
 
 if test ! -f $source
     echo 'file not found'
@@ -16,7 +32,11 @@ function corpus
     cat $source | tr '-' ' '
 end
 
-for i in (seq (math (random)%5+1))
+if test -z "$words" -o "$words" -lt 0 -o "$words" -gt 15
+    set words (math (random)%5+5)
+end
+
+for i in (seq $words)
      corpus | grep ' ' | sort -R | head -1 |\
         awk '{ srand(); printf "%s ", $(int(rand()*100)%(NF-1)+1); }'
 end
