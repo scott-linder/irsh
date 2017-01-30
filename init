@@ -10,6 +10,7 @@ import socket
 import subprocess
 import sys
 import glob
+import getpass
 path = imp.load_source('path', 'lib/path')
 
 def send(msg):
@@ -159,6 +160,7 @@ sf = s.makefile()
 
 ensure_dir('var')
 
+send('PASS {}'.format(getpass.getpass()), False)
 send('NICK {}'.format(NICK))
 send('USER {}'.format(USER))
 
