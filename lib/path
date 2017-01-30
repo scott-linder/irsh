@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from os import path, sep, environ
-from sys import argv
+from sys import argv, stdout
 
 def chan_path(chan, path):
     if sep in path:
@@ -23,4 +23,4 @@ def chan_path(chan, path):
 if __name__ == '__main__':
     chan = environ['CHAN']
     path = ' '.join(argv[1:])
-    print(chan_path(chan, path))
+    stdout.buffer.write(chan_path(chan, path).encode('utf-8'))
