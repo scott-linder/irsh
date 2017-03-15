@@ -1,0 +1,22 @@
+#!/usr/bin/fish
+
+. lib/opts.fish
+. lib/sudo.fish
+
+opts c: $argv
+
+set chan $CHAN
+
+set i 1
+while test $i -le (count $flags)
+    switch $flags[$i]
+        case '-c'
+            set i (math $i+1)
+            set chan $flags[$i]
+    end
+    set i (math $i+1)
+end
+
+if sudoer
+    echo "MODE $chan +o $pos" >var/cmd
+end

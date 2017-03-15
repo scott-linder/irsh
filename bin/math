@@ -1,3 +1,22 @@
-#!/usr/bin/fish
+#!/usr/bin/env python3
 
-math "$argv"
+import urllib.parse
+import urllib.request
+import json
+from sys import argv, stdout
+
+URL = 'https://newton.now.sh'
+method = 'simplify'
+args = argv[1:]
+
+try:
+    if args[0] == '-m':
+        method = args[1]
+        args = args[2:]
+except IndexError:
+    pass
+
+query = urllib.parse.quote(' '.join(args), safe='')
+response = urllib.request.urlopen('{}/{}/{}'.format(URL, method, query))
+obj = json.loads(response.read().decode())
+stdout.buffer.write(obj['result'].encode('utf-8'))

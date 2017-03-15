@@ -13,8 +13,9 @@ import glob
 import getpass
 path = imp.load_source('path', 'lib/path')
 
-def send(msg):
-    log.info('>{}'.format(msg))
+def send(msg, should_log=True):
+    if should_log:
+        log.info('>{}'.format(msg))
     s.send('{}\r\n'.format(msg).encode('utf-8'))
 
 def recv():
