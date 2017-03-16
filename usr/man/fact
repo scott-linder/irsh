@@ -1,0 +1,1 @@
+fact (-s regexp|-d index|[-r] find replace) | compel fish to respond to lines matching `find` with `replace` | -s searches all factoids, listing indexes | -d deletes factoid at given index | -r enables sed regexp support

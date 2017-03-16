@@ -1,0 +1,13 @@
+#!/usr/bin/fish
+if test -f var/fact/$CHAN
+    set resp \
+        (for script in (cat var/fact/$CHAN)
+            echo $argv | sed -n $script
+        end \
+        | sed '/^\s*$/d' \
+        | sort -R \
+        | head -1)
+    if test -n "$resp"
+        echo "PRIVMSG $CHAN :$resp" >>var/cmd
+    end
+end
