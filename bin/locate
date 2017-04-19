@@ -1,6 +1,0 @@
-#!/usr/bin/fish
-
-for path in $argv
-    readlink -f (lib/path $path); or exit $status
-    echo 'https://cclub.cs.wmich.edu/~stringy/fish/'(lib/path $path | cut -c10- | sed 's/#/%23/')
-end
