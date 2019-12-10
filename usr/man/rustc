@@ -1,1 +1,1 @@
-rustc code | compile and run rust (http://www.rust-lang.org/) code
+[expr] | compile and print a rust expression (http://www.rust-lang.org/) from the command-line or stdin

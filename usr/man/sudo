@@ -1,1 +1,1 @@
-sudo [-l] | check/modify per-channel sudo privileges | -l lists global sudoers
+[-l] | check/modify per-channel sudo privileges | -l lists global sudoers

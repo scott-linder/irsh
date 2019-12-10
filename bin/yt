@@ -3,7 +3,7 @@
 set api "https://www.googleapis.com/youtube/v3/search"
 set key (cat etc/google)
 
-set raw (curl -s -G $api --data-urlencode "part=snippet" --data-urlencode "q=$argv" --data-urlencode "key=$key")
+set raw (curl -s -G $api --data-urlencode "part=snippet" --data-urlencode "q=$argv" --data-urlencode "key=$key" --data-urlencode "type=video")
 echo $raw | jq -r '.items[0].snippet.title'
 set id (echo $raw | jq -r '.items[0].id.videoId')
 echo "https://www.youtube.com/watch?v=$id"

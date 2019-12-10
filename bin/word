@@ -31,6 +31,10 @@ while test $i -le (count $flags)
     set i (math $i+1)
 end
 
+if test -z "$def" -a -z "$topex" -a -z "$allex" -a -z "$related"
+    set def 1
+end
+
 if test -n "$pos"
     set term "$pos"
 else

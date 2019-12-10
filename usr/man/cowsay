@@ -1,1 +1,1 @@
-cowsay [string] | speaking cow | default string is read from stdin
+[string] [-n] | speaking cow reads string or stdin | -n disables forced wrapping

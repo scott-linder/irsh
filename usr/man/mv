@@ -1,1 +1,1 @@
-mv <src> <dst> | move (rename) a file | note, destination cannot exist
+src dst | move (rename) a file | note, destination cannot exist

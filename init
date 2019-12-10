@@ -1,48 +1,23 @@
 #!/usr/bin/env python3
 
 import configparser
-import imp
+import html
 import logging
 import os
+import path
 import re
 import shlex
-import socket
 import subprocess
 import sys
 import glob
 import getpass
-path = imp.load_source('path', 'lib/path')
+from matrix_client.client import MatrixClient
 
-def send(msg, should_log=True):
-    if should_log:
-        log.info('>{}'.format(msg))
-    s.send('{}\r\n'.format(msg).encode('utf-8'))
-
-def recv():
-    msg = sf.readline()
-    log.info('<{}'.format(msg.rstrip()))
-    return msg
-
-def parse_msg(msg):
-    match = MSG_RE.match(msg)
-    if match:
-        return (match.group('prefix'), match.group('command'),
-                match.group('params'), match.group('trail'))
-    else:
-        return (None, None, None, None)
-
-def parse_prefix(prefix):
-    match = PREFIX_RE.match(prefix)
-    if match:
-        return (match.group('nick'), match.group('user'), match.group('host'))
-    else:
-        return (None, None, None)
-
-def is_ignored(nick):
+def is_ignored(username):
     try:
         with open('etc/ignore', 'r') as f:
             for line in f:
-                if line.rstrip() == nick:
+                if line.rstrip() == username:
                     return True
     except OSError:
         pass
@@ -50,13 +25,6 @@ def is_ignored(nick):
 
 def sanitize_path(path):
     return path.replace('/', '')
-
-def open_cmd_fifo():
-    try:
-        os.mkfifo('var/cmd')
-    except OSError:
-        pass
-    return os.fdopen(os.open('var/cmd', os.O_RDONLY | os.O_NONBLOCK), 'r')
 
 def run(commandline, env):
     commands = [re.sub(r'\\\|', '|', s) for s in re.split(r'(?<!\\)\|', commandline)]
@@ -136,93 +104,85 @@ def ensure_dir(d):
     except OSError:
         pass
 
-# from http://news.anarchy46.net/2012/01/irc-message-regex.html
-MSG_RE = re.compile(r'^(:(?P<prefix>\S+) )?(?P<command>\S+)( (?!:)(?P<params>.+?))?( :(?P<trail>.+))?$')
-PREFIX_RE = re.compile(r'(?P<nick>\S+)!(?P<user>\S+)@(?P<host>\S+)')
+def room_message_listener(e):
+    nick = e['sender']
+    if is_ignored(nick):
+        return
+    channel = e['room_id']
+    msg = e['content']['body']
+    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
 
-config = configparser.ConfigParser()
-config.read('etc/irsh.ini')
-config = config['irsh']
-HOST = config['host']
-PORT = int(config['port'])
-NICK = config['nick']
-USER = config['user']
-LEADER = config['leader']
-MAXPIPES = int(config['maxpipes'])
-TIMEOUT = int(config['timeout'])
+    ensure_dir(path.chan_path(channel, ''))
+
+    for f in glob.glob('lib/filter/*'):
+        argv  = [f, msg]
+        try:
+            subprocess.Popen(argv, env=env).communicate()
+        except PermissionError:
+            pass
+
+    if msg.startswith(LEADER):
+        commandline = msg[len(LEADER):]
+        status, stdout, stderr = run(commandline, env)
+        log.info('command:{} status:{} stdout:{} stderr:{}'.format(repr(commandline), status, repr(stdout), repr(stderr)))
+        stdout = stdout.rstrip()
+        stderr = stderr.rstrip()
+        response = stdout
+        if status != 0 and stderr:
+            if stdout:
+                response += "\n"
+            response += stderr
+        if response:
+            fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
+            client.get_rooms()[channel].send_html(fmt.format(html.escape(response)), body=response)
+        with open('var/status', 'w') as f:
+            f.write('{}\n'.format(status))
+
+def event_listener(e):
+    log.info('event:{}'.format(e))
+    try:
+        if e['type'] == 'm.room.message' and e['content']['msgtype'] == 'm.text':
+            room_message_listener(e)
+    except KeyError as k:
+        log.error("Missing key {} in message: {}".format(k, e))
+    except Exception as x:
+        log.error("Squashing exception: {}".format(x))
+
+def invite_listener(room_id, state):
+    log.info('invite:{}'.format(room_id))
+    client.join_room(room_id)
+
+def leave_listener(room_id, room):
+    log.info('leave:{}'.format(room_id))
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler(sys.stderr))
 log.setLevel(logging.DEBUG)
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-sf = s.makefile()
+config = configparser.ConfigParser()
+config.read('etc/irsh.ini')
+config = config['irsh']
+URL = config['url']
+USERNAME = config['username']
+if 'password' in config:
+    log.warning('using plaintext password from config file')
+    PASSWORD = config['password']
+else:
+    PASSWORD = getpass.getpass()
+LEADER = config['leader']
+MAXPIPES = int(config['maxpipes'])
+TIMEOUT = int(config['timeout'])
 
 ensure_dir('var')
+ensure_dir('var/root')
 
-send('PASS {}'.format(getpass.getpass()), False)
-send('NICK {}'.format(NICK))
-send('USER {}'.format(USER))
-
-cmd_fifo = open_cmd_fifo()
-
-while True:
-    try:
-        msg = recv()
-        prefix, command, params, trail = parse_msg(msg)
-        if command == "001":
-            try:
-                with open('var/chans') as chans:
-                    for chan in chans:
-                        chan = chan.rstrip()
-                        try:
-                            os.makedirs(path.chan_path(chan, ''))
-                        except OSError:
-                            pass
-                        send('JOIN {}'.format(chan))
-            except OSError:
-                pass
-        elif command == 'PING':
-            send('PONG :{}'.format(trail))
-        elif command == 'PRIVMSG':
-            nick, _, _ = parse_prefix(prefix)
-            if is_ignored(nick):
-                continue
-            target = params
-            msg = trail
-
-            if target == NICK:
-                channel = nick
-            else:
-                channel = target
-
-            env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
-
-            for f in glob.glob('lib/filter/*'):
-                argv = [f, msg]
-                try:
-                    subprocess.Popen(argv, env=env).communicate()
-                except PermissionError:
-                    pass
-
-            if msg.startswith(LEADER):
-                commandline = msg[len(LEADER):]
-                status, stdout, stderr = run(commandline, env)
-                log.info('[{}]\nstdout:\n{}\nstderr:\n{}'
-                            .format(status, stdout, stderr))
-                resp = stdout.rstrip().replace('\n', ' | ') + stderr.rstrip().replace('\n', ' | ')
-                if resp:
-                    resp = 'PRIVMSG {} :{}'.format(channel, resp).encode('utf-8')
-                    if len(resp) > 510:
-                        resp = resp[:510]
-                    send(resp.decode('utf-8', 'ignore'))
-                with open('var/status', 'w') as f:
-                    f.write('{}\n'.format(status))
-
-            cmds = cmd_fifo.readlines()
-            for cmd in cmds:
-                send(cmd.rstrip())
-    except UnicodeDecodeError as e:
-        log.error("{}".format(e))
-        continue
+client = MatrixClient(URL)
+try:
+    client.register_with_password(username=USERNAME, password=PASSWORD)
+except:
+    pass
+client.login(username=USERNAME, password=PASSWORD)
+client.add_listener(event_listener)
+client.add_invite_listener(invite_listener)
+client.add_leave_listener(leave_listener)
+client.listen_forever()

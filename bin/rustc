@@ -1,16 +1,27 @@
 #!/usr/bin/fish
 
+if test -n "$argv"
+    set expr "$argv"
+else
+    set expr (cat)
+end
+
 set code "\
-#![allow(dead_code, unused_variables)]\
-#![allow(unused_features)]\
-fn show<T: std::fmt::Debug>(e: T) { println!(\"{:?}\", e) }\
-fn main() {\
-    show({\
-        $argv\
-    });\
-}\
-"
-echo $code \
-    | python3 -c 'import json; print(json.dumps({"code": input()}))' \
-    | curl -m 5 -s --insecure -X POST -d @- -H 'Content-Type: application/json' 'https://play.rust-lang.org/evaluate.json' \
-    | python3 -c 'import json; print(json.loads(input())["result"]);'
+#![allow(dead_code, unused_variables)]
+#![allow(unused_features)]
+fn show<T: std::fmt::Debug>(e: T) { println!(\"{:?}\", e) }
+fn main() {
+    show({
+        $expr
+    });
+}"
+
+set res (echo $code \
+    | python3 -c 'import sys; import json; print(json.dumps({"channel": "stable", "mode": "debug", "edition": "2018", "crateType": "bin", "tests": False, "code": sys.stdin.read(), "backtrace": False}))' \
+    | curl 'https://play.rust-lang.org/execute' -H 'Content-Type: application/json' --data @- --silent --max-time 10 --insecure)
+
+if test -n "$res"
+    echo $res | python3 -c 'import sys; import json; j=json.loads(sys.stdin.read()); print(j["stdout"]) if j["success"] else print(j["stderr"])'
+else
+    echo timeout
+end

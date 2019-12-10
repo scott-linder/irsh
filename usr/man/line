@@ -1,1 +1,1 @@
-line <number> <file> | print specific line from file | NOTE: indexes start from 1
+number file | print specific line from file | NOTE: indexes start from 1

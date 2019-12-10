@@ -3,7 +3,7 @@
 if test -n "$argv"
     set file usr/man/(echo $argv | tr -cd '[:alnum:]')
     if test -f $file
-        cat $file
+        echo $argv (cat $file)
     else
         echo no manual page for $argv
     end

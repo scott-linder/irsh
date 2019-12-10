@@ -1,1 +1,0 @@
-rainbow [-w] | write rainbowized version of standard input to standard output | -w switches color per word

@@ -1,1 +1,1 @@
-cat [file]... | concatenate files and print on standard output
+[file]... | concatenate files and print on standard output

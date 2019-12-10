@@ -1,1 +1,1 @@
-echo [string]... | write arguments to standard output
+[string]... | write arguments to standard output

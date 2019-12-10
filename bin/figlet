@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+
+if test (count $argv) -gt 0
+    set msg "$argv"
+else
+    set msg (cat)
+end
+
+echo "$msg" | figlet

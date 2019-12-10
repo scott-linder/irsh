@@ -1,1 +1,0 @@
-tell [-a] chan [string] | send string (or standard input) to channel | -a makes it an action (emote)

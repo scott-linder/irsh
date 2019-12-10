@@ -1,1 +1,0 @@
-topic (-a|-d number|-i number|-l|-n) [topic] | manage topic | note: all commands indexed from 1 | -a add a topic | -d delete a topic | -i insert a topic | -l loads the current topic as-is | -n outputs indexes of topics

@@ -1,1 +1,1 @@
-head [file]... | print first line of files to standard output
+[file]... | print first line of files to standard output

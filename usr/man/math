@@ -1,1 +1,1 @@
-math [-m method] expression | evaluate expression using the given method (default: simplify) | -m specify method (simplify, factor, derive, integrate, zeroes, tangent, area, abs, log, cos, sin, tan)
+[-m method] expression | evaluate expression using the given method (default: simplify) | -m specify method (simplify, factor, derive, integrate, zeroes, tangent, area, abs, log, cos, sin, tan)

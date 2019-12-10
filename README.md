@@ -3,43 +3,46 @@ irsh
 
 Internet Relay SHell
 
+Etymology
+---------
+
+This is actually a [Matrix](https://matrix.org/) bot. The name is a hold-over
+from when this was an IRC bot, and because "Internet Relay Shell" sounds cooler
+than "Matrix Shell".
+
+Rationale
+---------
+
+Both Matrix and Unix shells share a largely text-based interface. Many Matrix
+bots follow the pattern of invoking commands and passing arguments, but do not
+allow for composition of commands. The Unix shell (through pipes and
+redirection) makes composition of commands and filters simple.
+
+Thus irsh hopes to achieve the same, but in the restricted context of a Matrix
+room, and with the reuse of as many Unix utilities as possible (with only
+slight interface modifications).
+
 Usage
 -----
 
 Create a configuration file `etc/irsh.ini`:
 
     [irsh]
-    host = localhost
-    port = 6667
-    nick = irsh
-    user = irsh localhost localhost :irsh
+    url = localhost
+    username = irsh
     leader = $
     maxpipes = 5
     timeout = 5
 
 The leader will prefix all commands.
 
-Start irsh by running `init` and then message the bot to join channels:
-
-    /msg irsh $join #channel
-
-Rationale
----------
-
-Both IRC and Unix shells share a line-oriented, text-based interface. Many IRC
-bots follow the pattern of invoking commands and passing arguments, but do not
-allow for composition of commands. The Unix shell (through pipes and
-redirection) makes composition of commands and filters simple.
-
-Thus irsh hopes to achieve the same, but in the restricted context of an IRC
-channel, and with the reuse of as many Unix utilities as possible (with only
-slight interface modifications).
+Start irsh by running `init` and then invite the bot to join rooms.
 
 Overview
 --------
 
-The bot's core (`init`) is written in Python3 and requires no non-standard
-libraries.
+The bot's core (`init`) is written in Python3 and requires only the
+`matrix_client` library.
 
 The rest of the bot is intended to be written in Unix shell, specifically
 [fish](http://fishshell.com/).
@@ -60,14 +63,14 @@ The layout of the source directory is similar to a modern Unix filesystem:
         root/ - user "filesystem" root
 
 The most interesting directory tree is `var/root`, which is the root of the
-"filesystem" which is visible to bot users in channel. Beneath it there is a
-directory for each channel which the bot joins. Relative paths (i.e. those not
-containing a directory separator: `/`) are relative to the directory
-corresponding to the channel from which the message originated. If the path
-contains a directory separator it is considered to be absolute, and is relative
-to `var/root`. This is implemented by passing all user-defined paths as an
-argument to the `lib/path` binary, which returns the corrected path. It is the
-duty of each command to ensure that paths are sanitized in this way.
+"filesystem" which is visible to bot users. Beneath it there is a directory for
+each room which the bot joins. Relative paths (i.e. those not containing a
+directory separator: `/`) are relative to the directory corresponding to the
+room from which the message originated. If the path contains a directory
+separator it is considered to be absolute, and is relative to `var/root`. This
+is implemented by passing all user-defined paths as an argument to the
+`lib/path` binary, which returns the corrected path. It is the duty of each
+command to ensure that paths are sanitized in this way.
 
 Commands
 --------
@@ -109,11 +112,7 @@ while test $i -le (count $flags)
 end
 ```
 
-Command output will be sent back to the channel where the command was invoked,
-but often commands need to execute IRC commands directly. This can be achieved
-by writing to the `var/cmd` named pipe; any command written here will be sent
-verbatim to the IRC server. For example, `bin/join` sends `JOIN #channel\r\n`
-by writing to `var/cmd`.
+Command output will be sent back to the room where the command was invoked.
 
 It is each command's responsibility to ensure undue access is not granted to
 the user. Specifically, path arguments which are accepted by the command *must*

@@ -1,1 +1,1 @@
-gis query | return a random link to first page of google image search results for string
+query | return a random link to first page of google image search results for string

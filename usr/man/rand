@@ -1,1 +1,1 @@
-rand [file]... | display a random line from each file on standard output
+[file]... | display a random line from each file on standard output

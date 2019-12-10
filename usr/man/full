@@ -1,1 +1,1 @@
-full [string] | convert alphabetic characters to unicode full-width from stdin or arguments
+[string] | convert alphabetic characters to unicode full-width from stdin or arguments

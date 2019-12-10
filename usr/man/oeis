@@ -1,1 +1,1 @@
-oeis <comma-separated-integer-sequence> | get first result from the OEIS which matches the given sequence
+<comma-separated-integer-sequence> | get first result from the OEIS which matches the given sequence

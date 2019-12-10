@@ -1,9 +1,11 @@
 #!/usr/bin/fish
 
-if test (count $argv) -gt 0
-    set msg "$argv"
-else
-    set msg (cat)
-end
+. lib/opts.fish
 
-echo "/=\* --- ( $msg )"
+opts n $argv
+
+if test (count $pos) -gt 0
+    echo "$pos" | cowsay $flags
+else
+    cowsay $flags
+end

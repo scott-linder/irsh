@@ -1,1 +1,1 @@
-ln target link-name | create a symbolic link called link-name which refers to target
+target link-name | create a symbolic link called link-name which refers to target

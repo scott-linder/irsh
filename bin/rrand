@@ -1,4 +1,0 @@
-#!/usr/bin/fish
-
-bin/rand $argv | bin/r
-true

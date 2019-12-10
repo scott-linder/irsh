@@ -1,2 +1,2 @@
-gen [-n words] file | generate a new line similar to the lines in an existing file | samples
-from a random number of lines, and always ensures the last word is a terminating word from an existing line | -n specifies number of words to sample
+[-n words] file | generate a new line similar to the lines in an existing file | samples
+a random number of lines, and always ensures the last word is a terminating word from an existing line | -n specifies number of words to sample
