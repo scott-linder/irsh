@@ -85,7 +85,13 @@ def run(commandline, env):
 
     try:
         (stdout, stderr) = processes[-1].communicate(timeout=TIMEOUT)
-        status = processes[0].wait()
+        # The pipeline status is the && of every process, i.e. pipefail is
+        # always enabled. Don't bother preserving the exact status when there
+        # is no second process.
+        status = 0
+        for process in processes:
+            if process.wait():
+                status = 1
     except subprocess.TimeoutExpired:
         processes[-1].kill()
         _ = processes[-1].communicate()
@@ -128,10 +134,9 @@ def room_message_listener(e):
         stdout = stdout.rstrip()
         stderr = stderr.rstrip()
         response = stdout
-        if status != 0 and stderr:
-            if stdout:
-                response += "\n"
-            response += stderr
+        if stdout and stderr:
+            response += "\n"
+        response += stderr
         if response:
             fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
             client.get_rooms()[channel].send_html(fmt.format(html.escape(response)), body=response)
