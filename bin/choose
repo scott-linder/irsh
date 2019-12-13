@@ -1,5 +1,10 @@
 #!/usr/bin/fish
 
-if test (count $argv) -ge 1
-    echo $argv[(math (random)%(count $argv)+1)]
+set self (basename (status -f))
+
+if set -q argv[1]
+    printf "%s\n" $argv[(math (random)%(count $argv)+1)]
+else
+    printf "%s: No choices provided\n" $self >&2
+    exit 1
 end

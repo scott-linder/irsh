@@ -1,1 +1,6 @@
-[string]... | write arguments to standard output
+[-n] [-e] [string]...
+
+Write strings to standard output.
+
+    -n suppresses the trailing newline
+    -e interprets escape characters

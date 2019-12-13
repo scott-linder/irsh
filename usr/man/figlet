@@ -1,1 +1,10 @@
-[string] | ascii-art of string or stdin
+[-f font] [-r] [-j justification] [-w width] [string]
+
+ASCII-art of string or stdin.
+
+    -f use a different font. Cannot be used with -r. Valid fonts are:
+        banner big block bubble digital ivrit lean mini mnemonic script shadow
+        slant small smscript smshadow smslant standard term
+    -r use a random font. Cannot be used with -f.
+    -j selects a justification: c[enter], l[eft], or r[ight]
+    -w sets a width in characters (0<=w<=100)

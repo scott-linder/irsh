@@ -1,12 +1,18 @@
 #!/usr/bin/fish
 
-if test -n "$argv"
-    set file usr/man/(echo $argv | tr -cd '[:alnum:]')
-    if test -f $file
-        echo $argv (cat $file)
-    else
-        echo no manual page for $argv
+set self (basename (status -f))
+
+if set -q argv[1]
+    for topic in $argv
+        set topic (printf "%s" $topic | tr -cd '[:alnum:]')
+        if test -f usr/man/$topic
+            printf "%s " $topic
+            cat usr/man/$topic
+        else
+            printf "%s: %s: Man page does not exist\n" $self $topic >&2
+        end
     end
 else
-    echo available topics: (ls usr/man)
+    printf "available %s topics: " $self
+    ls -w0 -m usr/man
 end

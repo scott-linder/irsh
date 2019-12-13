@@ -1,1 +1,3 @@
-string... | randomly choose one of a list of strings
+choice...
+
+Randomly choose one of a list of choices.

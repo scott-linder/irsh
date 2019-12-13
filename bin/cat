@@ -1,9 +1,18 @@
 #!/usr/bin/fish
 
-if test -n "$argv"
-    for path in $argv
-        cat (lib/path $path); or exit $status
+set self (basename (status -f))
+
+set paths
+for path in $argv
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file or directory\n" $self $path >&2
+            exit 1
+        end
     end
-else
-    cat
 end
+
+cat -- $paths

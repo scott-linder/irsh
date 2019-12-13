@@ -1,9 +1,43 @@
 #!/usr/bin/fish
 
-if test (count $argv) -gt 0
-    set msg "$argv"
-else
-    set msg (cat)
+set fonts banner big block bubble digital ivrit lean mini mnemonic \
+    script shadow slant small smscript smshadow smslant standard term
+
+set self (basename (status -f))
+argparse -n$self -xf,r f= r j= 'w/width=!_validate_int --min 0 --max 100' \
+    -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline" $self >&2
+    exit 1
 end
 
-echo "$msg" | figlet
+if set -q _flag_r[1]
+    set flag_f -f $fonts[(math (random)%(count $fonts)+1)]
+else if set -q _flag_f
+    for font in $fonts
+        test $_flag_f = $font
+        and set flag_f -f $font
+        and break
+    end
+    if not set -q flag_f
+        printf "%s: %s: Font not found\n" $self $_flag_f >&2
+        exit 1
+    end
+end
+
+if set -q _flag_j
+    if string match -q -i -r '^c' $_flag_j
+        set flag_j -c
+    else if string match -q -i -r '^l' $_flag_j
+        set flag_j -l
+    else if string match -q -i -r '^r' $_flag_j
+        set flag_j -r
+    else
+        printf "%s: %s: Unknown justification\n" $self $_flag_j >&2
+        exit 1
+    end
+end
+
+set -q _flag_w; and set flag_w -w $_flag_w
+
+figlet $flag_f $flag_j $flag_w -- $argv

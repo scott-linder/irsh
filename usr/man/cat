@@ -1,1 +1,4 @@
-[file]... | concatenate files and print on standard output
+[file]...
+
+Concatenate files and print on standard output. When no file or when file is -
+read from standard input.
