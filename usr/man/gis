@@ -1,1 +1,6 @@
-query | return a random link to first page of google image search results for string
+[-d] string...
+
+Return a random link from the first page of google image search results for the
+given string.
+
+    -d also display the image as ASCII art
