@@ -1,7 +1,20 @@
 #!/usr/bin/fish
 
+set self (basename (status -f))
+argparse -n$self t= -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline" $self >&2
+    exit 1
+end
+
 set 9 9
 set 5 17
+
+if set -q _flag_t
+    set -x TZ $_flag_t
+else
+    set -x TZ America/New_York
+end
 
 set Z (math "($5-$9)*4")
 set M (date '+%M')

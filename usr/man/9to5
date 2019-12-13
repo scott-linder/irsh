@@ -1,1 +1,6 @@
-| display time graphically
+[-t timezone]
+
+Display time graphically.
+
+    -t set the timezone. Default is America/New_York. Full list is at
+       https://en.wikipedia.org/wiki/List_of_tz_database_time_zones

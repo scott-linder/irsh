@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && \
     apt-get -y install python3 python3-pip fish cowsay figlet \
-        fortune fortunes-off jq ansiweather locales \
+        fortune fortunes-off jq ansiweather locales tzdata \
         # hiptext dependencies
         git build-essential autoconf pkg-config libjpeg-dev \
         libavcodec-dev libavformat-dev libavutil-dev libgoogle-glog-dev \
