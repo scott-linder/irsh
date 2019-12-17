@@ -1,12 +1,5 @@
 #!/usr/bin/fish
 
-set self (basename (status -f))
-argparse -n$self d -- $argv >/dev/null ^&1
-or begin
-    printf "%s: Invalid commandline" $self >&2
-    exit 1
-end
-
 set api 'https://www.googleapis.com/customsearch/v1'
 set key (cat etc/google)
 
@@ -16,20 +9,11 @@ else
     set q (cat)
 end
 
-set url (curl -s -G $api \
+curl -s -G $api \
     --data-urlencode "q=$q" \
     --data-urlencode "cx=001680656005962934129:3ninki9vy-g" \
     --data-urlencode "key=$key" \
     --data-urlencode "searchType=image" \
     --data-urlencode "safe=high" \
     | jq -r '.items[]|.link' \
-    | bin/rand)
-
-printf "%s\n" $url
-
-if set -q _flag_d
-    set img (mktemp)
-    curl -s $url -o $img
-    and hiptext --nocolor --width=60 --chars=" ,oO0" $img ^/dev/null
-    rm -f $img
-end
+    | bin/rand
