@@ -1,43 +1,36 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts n: $argv
-
-if test (count $pos) != 1
-    bin/man (basename (status -f))
+set self (basename (status -f))
+argparse -n$self 'n/words=!_validate_int --min 0 --max 15' -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline" $self >&2
     exit 1
 end
 
-set words
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-n'
-            set i (math $i+1)
-            set words (echo $flags[$i] | tr -dc '[:digit:]')
-    end
-    set i (math $i+1)
+if not set -q argv[1]
+    printf "%s: Invalid commandline" $self >&2
+    exit 1
 end
 
-set source (lib/path $pos[1])
+if set -q _flag_n
+    set words $_flag_n
+else
+    set words (math (random)%5+5)
+end
+
+set source (lib/path $argv[1])
 
 if test ! -f $source
-    echo 'file not found'
+    printf '%s: %s: File not found' $self $source >&2
     exit 1
 end
 
 function corpus
-    cat $source | tr '-' ' '
-end
-
-if test -z "$words" -o "$words" -lt 0 -o "$words" -gt 15
-    set words (math (random)%5+5)
+    cat -- $source | tr '-' ' '
 end
 
 for i in (seq $words)
-     corpus | grep ' ' | sort -R | head -1 |\
+     corpus | grep ' ' | sort -R | head -1 | \
         awk '{ srand(); printf "%s ", $(int(rand()*100)%(NF-1)+1); }'
 end
 

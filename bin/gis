@@ -15,5 +15,4 @@ curl -s -G $api \
     --data-urlencode "key=$key" \
     --data-urlencode "searchType=image" \
     --data-urlencode "safe=high" \
-    | jq -r '.items[]|.link' \
-    | bin/rand
+    | jq -r '.items[0]|.link'
