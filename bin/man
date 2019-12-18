@@ -5,14 +5,14 @@ set self (basename (status -f))
 if set -q argv[1]
     for topic in $argv
         set topic (printf "%s" $topic | tr -cd '[:alnum:]')
-        if test -f usr/man/$topic
+        if test -f man/$topic
             printf "%s " $topic
-            cat usr/man/$topic
+            cat man/$topic
         else
             printf "%s: %s: Man page does not exist\n" $self $topic >&2
         end
     end
 else
     printf "available %s topics: " $self
-    ls -w0 usr/man | paste -s - | sed 's/\t/, /g'
+    ls -w0 man | paste -s - | sed 's/\t/, /g'
 end
