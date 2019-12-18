@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 function randword
-    cat etc/dict | grep "^$argv" | sort -R | head -1 | tr \n ' '
+    cat etc/dict | grep "^$argv" | shuf -n1 | tr \n ' '
 end
 
 for char in (echo $argv[1] | tr -dc '[:alpha:]' | lib/chars)

@@ -14,5 +14,5 @@ if set -q argv[1]
     end
 else
     printf "available %s topics: " $self
-    ls -w0 -m usr/man
+    ls -w0 usr/man | paste -s - | sed 's/\t/, /g'
 end

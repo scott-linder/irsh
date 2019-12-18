@@ -4,7 +4,7 @@ if test -n "$argv"
     for file in $argv
         set paths $paths (lib/path $file)
     end
-    cat $paths ^/dev/null | sort -R | head -1; or exit $status
+    cat $paths ^/dev/null | shuf -n1; or exit $status
 else
-    sort -R | head -1; or exit $status
+    shuf -n1; or exit $status
 end

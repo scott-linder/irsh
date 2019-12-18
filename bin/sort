@@ -2,7 +2,7 @@
 
 . lib/opts.fish
 
-opts Rr $argv
+opts r $argv
 
 if test -n "$pos"
     set files

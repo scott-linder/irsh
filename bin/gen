@@ -30,8 +30,8 @@ function corpus
 end
 
 for i in (seq $words)
-     corpus | grep ' ' | sort -R | head -1 | \
+     corpus | grep ' ' | shuf -n1 | \
         awk '{ srand(); printf "%s ", $(int(rand()*100)%(NF-1)+1); }'
 end
 
-corpus | sort -R | head -1 | awk '{ print $(NF) }'
+corpus | shuf -n1 | awk '{ print $(NF) }'
