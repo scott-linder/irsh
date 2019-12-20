@@ -1,16 +1,11 @@
-[-n] [-f cow] [-r] [-W width] [-e eyes] [-T tongue] [-bdgpstwy] [string]
+[-n] [-f cow] [-r] [-l] [-W width] [-e eyes] [-T tongue] [-bdgpstwy] [string]
 
 A speaking cow reads string or stdin.
 
     -n disable forced wrapping (cannot be used when passing string)
-    -f use a different cow. Cannot be used with -r. Valid cows are:
-        apt bud-frogs bunny calvin cheese cock cower daemon default dragon
-        dragon-and-cow duck elephant elephant-in-snake eyes flaming-sheep
-        ghostbusters gnu hellokitty kangaroo kiss koala kosh luke-koala
-        mech-and-cow milk moofasa moose pony pony-smaller ren sheep skeleton
-        snowman stegosaurus stimpy suse three-eyes turkey turtle tux unipony
-        unipony-smaller vader vader-koala www
+    -f use a different cow. Cannot be used with -r.
     -r use a random cow. Cannot be used with -f
+    -l list all available cows
     -W set text wrap width
     -e set eye string
     -T set tongue string

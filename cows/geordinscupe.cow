@@ -1,0 +1,28 @@
+$the_cow = <<"EOC";
+         $thoughts
+          $thoughts     ,   ,   ,, ,,,,,,, ,,   ,
+          ,,,,,,, ,,,, ,,,,,,,,,,,,,,, ,,,,,,,,,,,
+          ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+          ,,,,,,ooOOoOoooooooooooooooooOoOooo,,,,,,
+         ,, ,         oOOOOOOoOOOOOOOoo           ,,
+        ,,   ,,oOOoOoooooOooOOOOOooOoooooOoOOOo,   ,,
+       ,,, ,,ooo,    ,oo,,ooOo,oOoo,ooo,    ,ooo,, ,,,
+        ,,,ooo     oo,,, ,,,,,,,,,,  , ,oo     ooo,,,
+       ,,,oo,, , ,  ,    ,,,,,,,,,,,    ,      ,oo,,,
+        ,,,o,,,,ooOo,, ,,,ooo,,,oooo,, ,ooOoo,,,,o ,,
+         ,,,o,,,ooo,,,ooooo,,,,, ,ooOoo,,,ooo,,,,,,,
+         ,,,,,oooooooOOOOo,,oO0Oo,,oOOOOooooooo,,,,,
+ ,       ,,,ooooOOOO00OOo,O       O,oOOO0OOOooooo,,,       ,
+ ,O ,    ,,oooOO000000OOOoooOOOOOoooOO000000OOooo,,     , O,
+ ,  oo   ,,oooO0000000OOooooOOoOOOoooOO000000OOooo,,  ,o,  ,
+,,,oooo  ,,,oOO000000OOoOoooooooooooooOO000000OoO,,,  oooo,,
+  ,,o,O,, ,oOO0000000OOO,,0O000O0O0,,oOO0000O00OOo,  ,O,,,,
+    ,,   ,,oOoOO000000O               O000000OOoOo,,   o,
+       , ,,oOOO00O00O0                ,0000O0OOooo, ,,
+       ,,,,,oooO0O0000               ,000O00Oooo,,,,,
+      ,,,,,,,oooO0O000O               O000O0O,oo,, ,, ,
+     ,,,,,,,,,oooOOOOOO,     $tongue      ,OO0OOOoooo,,,,,,,,
+    ,,oo,,,,oooo,oOO0oOo,    ,,,    ooOo0OOo,ooo, ,,,oo,,
+   ,,ooo,  ,oooooooooOoOooOOoOOOoOOooO,Oooooooooo,  ,ooo,,
+   ,ooo,, ,oooooo,oooo0OOOOOOOoOOOOooOOoOoo,oooooo, ,,oooo
+EOC

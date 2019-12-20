@@ -1,18 +1,13 @@
 #!/usr/bin/fish
 
-set cows apt bud-frogs bunny calvin cheese cock cower daemon default dragon \
-    dragon-and-cow duck elephant elephant-in-snake eyes flaming-sheep \
-    ghostbusters gnu hellokitty kangaroo kiss koala kosh luke-koala \
-    mech-and-cow milk moofasa moose pony pony-smaller ren sheep skeleton \
-    snowman stegosaurus stimpy suse three-eyes turkey turtle tux unipony \
-    unipony-smaller vader vader-koala www
-
 set self (basename (status -f))
-argparse -n$self -xf,r n f= r W= e= T= b d g p s t w y -- $argv >/dev/null ^&1
+argparse -n$self -xf,r n f= r l W= e= T= b d g p s t w y -- $argv >/dev/null ^&1
 or begin
-    printf "%s: Invalid commandline" $self >&2
+    printf "%s: Invalid commandline\n" $self >&2
     exit 1
 end
+
+set cows ($self -l | tail -n +2 | tr ' ' '\n')
 
 if set -q _flag_r[1]
     set flag_f -f $cows[(math (random)%(count $cows)+1)]
@@ -37,6 +32,11 @@ set -q _flag_W; and set flag_W -W $_flag_W
 set -q _flag_e; and set flag_e -e $_flag_e
 set -q _flag_T; and set flag_T -T $_flag_T
 
-cowsay $_flag_n[1] $flag_f $flag_W $flag_e $flag_T \
+if set -q _flag_l
+    printf "%s" "$cows"
+    exit 0
+end
+
+$self $_flag_n[1] $flag_f $flag_W $flag_e $flag_T \
     $_flag_b[1] $_flag_d[1] $_flag_g[1] $_flag_p[1] \
     $_flag_s[1] $_flag_t[1] $_flag_w[1] $_flag_y[1] -- $argv
