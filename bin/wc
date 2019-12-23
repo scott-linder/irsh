@@ -1,17 +1,31 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
+set self (basename (status -f))
+argparse -n$self -xc,w c w -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
+end
 
-opts cw $argv
-
-if test -z "$flags"
+if set -q _flag_c[1]
+    set flags -c
+else if set -q _flag_w[1]
+    set flags -w
+else
     set flags -l
 end
 
-if test -n "$pos"
-    for path in $pos
-        wc $flags (lib/path $path) | awk '{ print $1 }'
+set paths
+for path in $argv
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file\n" $self $path >&2
+            exit 1
+        end
     end
-else
-    cat | wc $flags
 end
+
+cat -- $paths | wc $flags

@@ -1,1 +1,5 @@
-[-n] script [file] | run a sed script on file or standard input | -n suppress automatic printing
+[-n] script [file]
+
+Run a sed script on file or standard input
+
+    -n suppress automatic printing

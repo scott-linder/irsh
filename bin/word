@@ -2,55 +2,47 @@
 
 # http://developer.wordnik.com/docs.html
 
-. lib/opts.fish
+set self (basename (status -f))
+argparse -n$self -xd,t,a,r d t a r -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
+end
 
-set api 'http://api.wordnik.com/v4'
+set api 'https://api.wordnik.com/v4'
 function word
-    curl -s -H 'api_key: '(cat etc/wordnik) "$api/$argv"
+    curl -sSL -H 'api_key: '(cat etc/wordnik) "$api/$argv"
 end
 
-opts dtra $argv
+set -q _flag_d
+and set def 1
 
-set def
-set topex
-set allex
-set related
+set -q _flag_t
+and set topex 1
 
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-d'
-            set def 1
-        case '-t'
-            set topex 1
-        case '-a'
-            set allex 1
-        case '-r'
-            set related 1
-    end
-    set i (math $i+1)
-end
+set -q _flag_a
+and set allex 1
+
+set -q _flag_r
+and set related 1
 
 if test -z "$def" -a -z "$topex" -a -z "$allex" -a -z "$related"
     set def 1
 end
 
-if test -n "$pos"
-    set term "$pos"
+if set -q argv[1]
+    set term "$argv"
 else
     set term (word words.json/randomWord | jq -r '.["word"]')
-    echo $term
+    printf "%s\n" $term
 end
 
 if test -n "$def"
     word "word.json/$term/definitions" | jq -r '.[]["text"]'
-end
-if test -n "$topex"
+else if test -n "$topex"
     word "word.json/$term/topExample" | jq -r '.["text"]'
-end
-if test -n "$allex"
+else if test -n "$allex"
     word "word.json/$term/examples" | jq -r '.["examples"][]["text"]'
-end
-if test -n "$related"
+else if test -n "$related"
     word "word.json/$term/relatedWords" | jq -r '.[]["words"][]'
 end

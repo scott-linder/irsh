@@ -1,9 +1,9 @@
 #!/usr/bin/fish
 
-if test (count $argv) -lt 1
-    set who $NICK
+if set -q argv[1]
+    set who "$NICK"
 else
     set who "$argv"
 end
 
-echo "<+$who> it was me lol"
+printf "<+%s> it was me lol" $who

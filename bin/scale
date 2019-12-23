@@ -1,11 +1,13 @@
 #!/usr/bin/fish
 
+set self (basename (status -f))
+
 if test (count $argv) -ne 3
-    bin/man (basename (status -f))
+    printf "%s: Invalid commandline\n" $self >&2
     exit 1
 end
 
-set n $argv[3]
+set n (printf "%s" $argv[3] | tr -dc '[:digit:]')
 
 if test $n -gt 10
     set n 10
@@ -15,16 +17,14 @@ if test $n -lt 0
     set n 0
 end
 
-echo -n $argv[1]
-echo -n [
+printf '%s[' $argv[1]
 set i 0
 while test $i -lt $n
-    echo -n '####'
+    printf '####'
     set i (math $i+1)
 end
 while test $i -lt 10
-    echo -n '....'
+    printf '....'
     set i (math $i+1)
 end
-echo -n ]
-echo $argv[2]
+printf ']%s\n' $argv[2]

@@ -1,1 +1,3 @@
-| write lowercased version of standard input to output
+[string]
+
+Write lowercased version of string or stdin to stdout.

@@ -1,9 +1,29 @@
 #!/usr/bin/fish
 
-if test -n "$argv"
-    for path in $argv
-        head -1 (lib/path $path); or exit $status
-    end
-else
-    cat | head -1
+set self (basename (status -f))
+argparse -n$self 'n/count=!_validate_int --min 1 --max 100' -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
+
+set paths
+for path in $argv
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file or directory\n" $self $path >&2
+            exit 1
+        end
+    end
+end
+
+if set -q _flag_n
+    set flag_n -n$_flag_n
+else
+    set flag_n -n1
+end
+
+$self $flag_n -- $paths

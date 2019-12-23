@@ -1,5 +1,7 @@
 #!/usr/bin/fish
 
-while read line
-    echo $line | tr '[:upper:]' '[:lower:]'
+if set -q argv[1]
+    printf "%s" "$argv" | tr '[:upper:]' '[:lower:]'
+else
+    tr '[:upper:]' '[:lower:]'
 end

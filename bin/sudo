@@ -1,26 +1,16 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-. lib/line.fish
 . lib/sudo.fish
 
-opts l $argv
-
-set list
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-l'
-            set list 1
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self l -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
 
-if test -n "$list"
+if set -q _flag_l
     cat etc/sudoers
 else if sudoer
-    if test -z "$flags"
-        echo "Aquaman says you're cool."
-    end
+    printf "Aquaman says you're cool.\n"
 end

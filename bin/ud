@@ -1,33 +1,30 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts ri: $argv
-
-set rand
-set item 0
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-r'
-            set rand 1
-        case '-i'
-            set i (math $i+1)
-            set item $flags[$i]
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self 'i/index=!_validate_int --min 0' -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
 
-set api 'http://api.urbandictionary.com/v0'
+set api 'https://api.urbandictionary.com/v0'
+
+if set -q _flag_i
+    set item $_flag_i
+else
+    set item 0
+end
 
 function clean
     tr -d \r | sed '/^\s*$/d'
 end
 
-if test -n "$rand"
-    curl -s -G $api/random | jq -r ".list[$item]|.word,.definition" | clean
+if set -q argv[1]
+    curl -sSL -G $api/define --data-urlencode "term=$argv" \
+        | jq -r ".list[$item].definition" \
+        | clean
 else
-    curl -s -G $api/define --data-urlencode "term=$pos" |\
-        jq -r ".list[$item].definition" | clean
+    curl -sSL -G $api/random \
+        | jq -r ".list[$item]|.word,.definition" \
+        | clean
 end

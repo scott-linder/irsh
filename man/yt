@@ -1,1 +1,3 @@
-[string] | return link to top youtube result for string
+[string]
+
+Return link to top youtube result for string or stdin.

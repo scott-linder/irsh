@@ -1,1 +1,3 @@
-[file]... | display a random line from each file on standard output
+[file]...
+
+Print a random line from among files or stdin.

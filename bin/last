@@ -1,22 +1,20 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts r $argv
-
-set raw
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-r'
-            set raw 1
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self r -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
 
-set nick (echo "$pos" | tr -d '/')
-if test -n "$raw"
+set nick (printf "%s" "$argv" | tr -d '/')
+
+if not test -f var/last/$nick
+    printf "%s: %s: Unknown username\n" $self $nick >&2
+    exit 1
+end
+
+if set -q _flag_r[1]
     cat "var/last/$nick" | sed 's/\S\+ \S\+ \(.*\)/\1/'
 else
     cat "var/last/$nick"

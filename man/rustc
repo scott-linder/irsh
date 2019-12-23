@@ -1,1 +1,3 @@
-[expr] | compile and print a rust expression (http://www.rust-lang.org/) from the command-line or stdin
+[expr]
+
+Compile and print a rust expression (http://www.rust-lang.org/) from the command-line or stdin.

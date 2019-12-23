@@ -1,16 +1,29 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts Ff:u: $argv
-
-if test (count $pos) -eq 0
-    set loc Kalamazoo,US
-else if test (count $pos) -eq 1
-    set loc $pos[1]
-else
-    bin/man (basename (status -f))
+set self (basename (status -f))
+argparse -n$self -xF,f F 'f/days=!_validate_int --min 1' u= -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
     exit 1
 end
 
-ansiweather -l $loc -u imperial -a no $flags | sed 's/^\s\+\(.*\)/\1/'
+if test (count $argv) -eq 0
+    set loc Kalamazoo,US
+else if test (count $argv) -eq 1
+    set loc $argv[1]
+else
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
+end
+
+set -q _flag_f
+and set flag_f -f $_flag_f
+
+if set -q _flag_u
+    set flag_u -u $_flag_u
+else
+    set flag_u -u imperial
+end
+
+# FIXME: not sure why there is some noise on stderr
+ansiweather -a no -l $loc $_flag_F[1] $flag_f $flag_u ^/dev/null | sed 's/^\s\+\(.*\)/\1/'

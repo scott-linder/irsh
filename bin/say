@@ -1,8 +1,9 @@
 #!/usr/bin/fish
 
-if test -n "$argv"
-    set to_say $argv
+if set -q argv[1]
+    set to_say "$argv"
 else
     set to_say (cat)
 end
-echo "><{{{*> -- ( $to_say )"
+
+printf "><{{{*> -- ( %s )\n" $to_say

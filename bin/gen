@@ -18,20 +18,14 @@ else
     set words (math (random)%5+5)
 end
 
-set source (lib/path $argv[1])
-
-if test ! -f $source
-    printf '%s: %s: File not found' $self $source >&2
-    exit 1
-end
-
 function corpus
-    cat -- $source | tr '-' ' '
+    bin/cat $argv
+    or exit 1
 end
 
 for i in (seq $words)
-     corpus | grep ' ' | shuf -n1 | \
+     corpus $argv | tr '-' ' ' | shuf -n1 | \
         awk '{ srand(); printf "%s ", $(int(rand()*100)%(NF-1)+1); }'
 end
 
-corpus | shuf -n1 | awk '{ print $(NF) }'
+corpus $argv | tr '-' ' ' | shuf -n1 | awk '{ print $(NF) }'

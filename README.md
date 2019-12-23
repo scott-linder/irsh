@@ -82,34 +82,20 @@ error as you would expect. Return values can be inspected by the user, so if
 appropriate set a non-zero exit status.
 
 Commands receive arguments through argv as expected. If the command is written
-in fish there is a utility library, `lib/opts.fish` which defines a function
-`opts` which extracts `$flags` and `$pos` (positional arguments) from the argv
-via `getopt`. An example use is:
+in fish the standard `argparse` function can be used to interpret flag
+arguments.
 
 ```fish
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts ab:c $argv
-
-set a
-set b
-set c
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-a'
-            set a 1
-        case '-b'
-            set i (math $i+1)
-            set b $flags[$i]
-        case '-c'
-            set c 1
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self a b= c -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
+
+# use $_flag_a $_flag_b and $_flag_c
 ```
 
 Command output will be sent back to the room where the command was invoked.

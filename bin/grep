@@ -1,21 +1,31 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
+set self (basename (status -f))
+argparse -n$self c i v n -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
+end
 
-opts civn $argv
+if not set -q argv[1]
+    printf "%s: Pattern required\n" $self >&2
+    exit 1
+end
 
-set pattern $pos[1]
-set files
-if test (count $pos) -ge 2
-    for file in $pos[2..-1]
-        set files $files (lib/path $file)
+set pattern $argv[1]
+
+set paths
+for path in $argv[2..-1]
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file or directory\n" $self $path >&2
+            exit 1
+        end
     end
-else
-    set files '-'
 end
 
-if test -n "$pattern"
-    grep -h $flags -e $pattern $files
-else
-    echo invalid pattern or file
-end
+grep $_flag_c[1] $_flag_i[1] $_flag_v[1] $_flag_n[1] \
+    -h -e $pattern -- $paths

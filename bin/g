@@ -3,8 +3,14 @@
 set api 'https://www.googleapis.com/customsearch/v1'
 set key (cat etc/google)
 
-curl -s -G $api \
-    --data-urlencode "q=$argv" \
+if set -q argv[1]
+    set q $argv
+else
+    set q (cat)
+end
+
+curl -sSL -G $api \
+    --data-urlencode "q=$q" \
     --data-urlencode "cx=001680656005962934129:0xu3kr4du8w" \
     --data-urlencode "key=$key" \
     | jq -r '.items[0]|.title,.link'

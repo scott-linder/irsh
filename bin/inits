@@ -1,9 +1,19 @@
 #!/usr/bin/fish
 
-function randword
-    cat etc/dict | grep "^$argv" | shuf -n1 | tr \n ' '
+set self (basename (status -f))
+
+if not test -f etc/dict
+    printf "%s: No dictionary installed\n" $self >&2
 end
 
-for char in (echo $argv[1] | tr -dc '[:alpha:]' | lib/chars)
+if not set -q argv[1]
+    printf "%s: No string provided\n" $self >&2
+end
+
+function randword
+    cat etc/dict | grep "^$argv.*[^'][^s]\$" | shuf -n1 | tr \n ' '
+end
+
+for char in (printf "%s" "$argv" | tr -dc '[:alpha:]' | lib/chars)
     randword $char
 end

@@ -1,5 +1,0 @@
-#!/usr/bin/fish
-
-for path in $argv
-    cat (lib/path $path) | paste -s -d,; or exit $status
-end

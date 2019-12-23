@@ -1,3 +1,3 @@
-string
+[string]
 
-Return a link to the top google image search results for the given string.
+Return a link to the top google image search result for string or stdin.

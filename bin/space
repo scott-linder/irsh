@@ -1,5 +1,5 @@
 #!/usr/bin/fish
 
 for char in (cat | lib/chars)
-    echo -n $char' '
+    printf '%s ' $char
 end

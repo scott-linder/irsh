@@ -1,10 +1,15 @@
 #!/usr/bin/fish
 
-set s (curl -s "http://oeis.org/search?fmt=text&q=$argv" |\
-        sed -n 's/^%N \(.*\)/\1/p' | head -1)
+set self (basename (status -f))
+
+set s (curl -sSL -G "https://oeis.org/search" \
+            --data-urlencode "fmt=text" \
+            --data-urlencode "q=$argv" \
+        | sed -n 's/^%N \(.*\)/\1/p' | head -1)
 
 if test -n "$s"
-    echo $s
+    printf "%s" $s
 else
-    echo no such sequence
+    printf "%s: No such sequence\n" $self >&2
+    exit 1
 end

@@ -1,31 +1,24 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts n: $argv
-
-set n
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-n'
-            set i (math $i+1)
-            set n (echo $flags[$i] | tr -dc '[:digit:]')
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self 'n/count=!_validate_int --min 0 --max 100'  -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
 
-if test -z "$n"
+if set -q _flag_n
+    set n $_flag_n
+else
     set n (math (random)%10+2)
 end
 
-if test -n "$pos"
-    set msg "$pos"
+if set -q argv[1]
+    set msg "$argv"
 else
     set msg (cat)
 end
 
 for i in (seq $n)
-    echo -n $msg' '
+    printf "%s " $msg
 end

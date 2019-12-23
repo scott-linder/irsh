@@ -7,7 +7,7 @@ set self (basename (status -f))
 argparse -n$self -xf,r f= r j= 'w/width=!_validate_int --min 0 --max 100' \
     -- $argv >/dev/null ^&1
 or begin
-    printf "%s: Invalid commandline" $self >&2
+    printf "%s: Invalid commandline\n" $self >&2
     exit 1
 end
 

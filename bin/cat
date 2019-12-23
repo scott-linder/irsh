@@ -9,7 +9,7 @@ for path in $argv
     else
         set paths $paths (lib/path $path)
         if not test -f $paths[-1]
-            printf "%s: %s: No such file or directory\n" $self $path >&2
+            printf "%s: %s: No such file\n" $self $path >&2
             exit 1
         end
     end

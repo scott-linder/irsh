@@ -3,13 +3,13 @@
 set api 'https://www.googleapis.com/customsearch/v1'
 set key (cat etc/google)
 
-if test -n "$argv"
+if set -q argv[1]
     set q $argv
 else
     set q (cat)
 end
 
-curl -s -G $api \
+curl -sSL -G $api \
     --data-urlencode "q=$q" \
     --data-urlencode "cx=001680656005962934129:3ninki9vy-g" \
     --data-urlencode "key=$key" \

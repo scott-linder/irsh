@@ -1,6 +1,8 @@
 #!/usr/bin/fish
 
-if test -n "$argv"
+set self (basename (status -f))
+
+if set -q argv[1]
     set expr "$argv"
 else
     set expr (cat)
@@ -16,12 +18,13 @@ fn main() {
     });
 }"
 
-set res (echo $code \
+set res (printf "%s" $code \
     | python3 -c 'import sys; import json; print(json.dumps({"channel": "stable", "mode": "debug", "edition": "2018", "crateType": "bin", "tests": False, "code": sys.stdin.read(), "backtrace": False}))' \
     | curl 'https://play.rust-lang.org/execute' -H 'Content-Type: application/json' --data @- --silent --max-time 10 --insecure)
 
 if test -n "$res"
-    echo $res | python3 -c 'import sys; import json; j=json.loads(sys.stdin.read()); print(j["stdout"]) if j["success"] else print(j["stderr"])'
+    printf "%s" $res | python3 -c 'import sys; import json; j=json.loads(sys.stdin.read()); print(j["stdout"]) if j["success"] else print(j["stderr"])'
 else
-    echo timeout
+    printf "%s: Timeout\n" $self >&2
+    exit 1
 end

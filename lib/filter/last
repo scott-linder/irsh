@@ -5,4 +5,4 @@ set nick (echo $NICK | tr -d /)
 
 mkdir -p var/last
 
-echo $date $CHAN $argv >var/last/$nick
+printf "%s %s %s\n" $date $CHAN $argv >var/last/$nick

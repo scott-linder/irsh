@@ -1,15 +1,23 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
-
-opts r $argv
-
-if test -n "$pos"
-    set files
-    for file in $pos
-        set files $files (lib/path $file)
-    end
-    sort $flags $files
-else
-    sort $flags
+set self (basename (status -f))
+argparse -n$self r -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
+
+set paths
+for path in $argv
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file\n" $self $path >&2
+            exit 1
+        end
+    end
+end
+
+sort $_flag_r[1] -- $paths

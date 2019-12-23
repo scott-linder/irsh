@@ -1,1 +1,5 @@
-[-r] [file]... | sort lines from files or standard input | -r reverse order
+[-r] [file]...
+
+Sort lines from files or standard input
+
+    -r reverse order

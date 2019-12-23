@@ -1,63 +1,54 @@
 #!/usr/bin/fish
 
-. lib/opts.fish
 . lib/sed.fish
 
-opts vgrn:a:b: $argv
-
-set verbose
-set global
-set regexp
-set nick
-set after 0
-set before (date '+%s')
-
-set i 1
-while test $i -le (count $flags)
-    switch $flags[$i]
-        case '-v'
-            set verbose 1
-        case '-g'
-            set global 1
-        case '-r'
-            set regexp 1
-        case '-n'
-            set i (math $i+1)
-            set nick $flags[$i]
-        case '-a'
-            set i (math $i+1)
-            set after (date -d $flags[$i] '+%s')
-        case '-b'
-            set i (math $i+1)
-            set before (date -d $flags[$i] '+%s')
-    end
-    set i (math $i+1)
+set self (basename (status -f))
+argparse -n$self v g r n= a= b= -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
 end
 
-if test -n "$global"
+if set -q _flag_g[1]
     set files var/karma/*
 else
     set files var/karma/$CHAN
 end
 
-if test -n "$regexp"
+if set -q _flag_r[1]
     set grep_flags -cE
 else
     set grep_flags -cxF
 end
 
-if test -n "$nick"
-    set nick_regexp (sed_escape_regexp $nick)
+if set -q _flag_n
+    set nick_regexp (sed_escape_regexp $_flag_n)
 else
     set nick_regexp '\S\+'
 end
 
-set plus  (awk "\$1 > $after && \$1 < $before { print }" $files | sed "s/\S\+ $nick_regexp ++ \(.*\)/\1/" | grep $grep_flags "$pos")
-set minus (awk "\$1 > $after && \$1 < $before { print }" $files | sed "s/\S\+ $nick_regexp -- \(.*\)/\1/" | grep $grep_flags "$pos")
+if set -q _flag_a
+    set after (date -d $_flag_a '+%s')
+else
+    set after 0
+end
+
+if set -q _flag_b
+    set before (date -d $_flag_b '+%s')
+else
+    set before (date '+%s')
+end
+
+set plus  (awk "\$1 > $after && \$1 < $before { print }" $files \
+            | sed -n "s/\S\+ $nick_regexp ++ \(.*\)/\1/p" \
+            | grep $grep_flags "$argv")
+set minus (awk "\$1 > $after && \$1 < $before { print }" $files \
+            | sed -n "s/\S\+ $nick_regexp -- \(.*\)/\1/p" \
+            | grep $grep_flags "$argv")
 set total (math $plus-$minus)
 
-if test -n "$verbose"
-    echo $total "(+$plus/-$minus)"
+if set -q _flag_v[1]
+    printf "%s (+%s/-%s)\n" $total $plus $minus
 else
-    echo $total
+    printf "%s" $total
 end

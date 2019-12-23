@@ -1,2 +1,3 @@
-from_label to_label amount | draw a scale, filled to amount*10 percent
-the two labels
+from to amount
+
+Draw a scale, filled to amount*10 percent between the labels from and to.

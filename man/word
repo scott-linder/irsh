@@ -1,1 +1,8 @@
-[-d|-t|-a|-r] [term] | note: if no term is specified a random one is generated, and if no option is specified the definition is returned | -d get all definitions of term | -t get top example of term | -a get all examples of term | -r get related terms
+[-d|-t|-a|-r] [term]
+
+Word stuff. If no term is specified a random one is generated.
+
+    -d get all definitions of term (default)
+    -t get top example of term
+    -a get all examples of term
+    -r get related terms

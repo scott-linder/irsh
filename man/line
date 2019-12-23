@@ -1,1 +1,3 @@
-number file | print specific line from file | NOTE: indexes start from 1
+number [file]
+
+Print specific line (indexed from 1) from file or stdin.

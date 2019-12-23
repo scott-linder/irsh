@@ -2,17 +2,23 @@
 
 . lib/sudo.fish
 
+set self (basename (status -f))
+
 if sudoer
     if test (count $argv) -eq 2
         set src (lib/path $argv[1])
-        set dest (lib/path $argv[2])
-        if not test -f $dest
-            mv $src $dest
-        else
-            echo destination exists
+        if not test -f $src
+            printf "%s: %s: No such file\n" $self $argv[1] >&2
+            exit 1
         end
+        set dest (lib/path $argv[2])
+        if test -f $dest
+            printf "%s: %s: File exists\n" $self $argv[2] >&2
+            exit 1
+        end
+        mv -- $src $dest
     else
-        bin/man (basename (status -f))
+        printf "%s: Invalid commandline\n" $self >&2
         exit 1
     end
 end

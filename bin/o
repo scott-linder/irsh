@@ -1,5 +1,7 @@
 #!/usr/bin/fish
 
+set self (basename (status -f))
+
 function o
     cat /dev/urandom | tr -dc 'oO' | head -c $argv[1]
 end
@@ -7,14 +9,14 @@ end
 if test (count $argv) -eq 0
     o (math (random)%64+4)
 else if test (count $argv) -eq 1
-    set n (echo $argv[1] | tr -cd '[:digit:]')
+    set n (printf "%s" $argv[1] | tr -cd '[:digit:]')
     if test -n "$n" -a "$n" -lt 300
         o $n
     else
-        echo 'not a valid number (<300)'
+        printf "%s: %s: Invalid number\n" $self $argv[1] >&2
         exit 1
     end
 else
-    bin/man (basename (status -f))
+    printf "%s: Invalid commandline\n" $self >&2
     exit 1
 end

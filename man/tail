@@ -1,1 +1,5 @@
-[file]... | print last line of files to standard output
+[-n count] [file]...
+
+Print the last count lines of files or stdin.
+
+    -n number of lines of each file to print. Default is 1.
