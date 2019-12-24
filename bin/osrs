@@ -1,0 +1,68 @@
+#!/usr/bin/fish
+
+set self (basename (status -f))
+
+set api 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws'
+
+set player "$argv"
+
+set results (curl -m 5 -sSL -G $api --data-urlencode "player=$player" | head -24)
+
+if string match -q -i '*not found*' "$results"
+    printf "%s: %s: Player not found\n" $self $player >&2
+    exit 1
+end
+
+set skills total attack defence strength hitpoints ranged prayer magic cooking woodcutting fletching fishing firemaking crafting smithing mining herblore agility thieving slayer farming runecraft hunter construction
+for i in (seq (count $skills))
+    set $skills[$i] \
+        (printf '%s' $results[$i] | awk -F, '{ print $2 }')
+end
+
+set combat_base (math "0.25 * ($defence + $hitpoints + floor($prayer / 2))")
+set combat_melee (math "0.325 * ($attack + $strength)")
+set combat_range (math "0.325 * (floor(3 * $ranged / 2))")
+set combat_mage (math "0.325 * (floor(3 * $magic / 2))")
+set combat_max $combat_melee
+test $combat_range -gt $combat_max
+and set combat_max $combat_range
+test $combat_mage -gt $combat_max
+and set combat_max $combat_mage
+set combat (math "floor($combat_base + $combat_max)")
+
+printf "\
+%s (level-%d)
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s  %s
+%3d %3d %3d
+ %s  %s
+%3d %3d %4d
+" \
+$player $combat \
+🗡️ ❤️ ⛏️ \
+$attack $hitpoints $mining \
+💪 🏃 🚂 \
+$strength $agility $smithing \
+🛡️ 🌿 🎣 \
+$defence $herblore $fishing \
+🏹 🦝 🍳 \
+$ranged $thieving $cooking \
+🙏 ⚒️  🔥 \
+$prayer $crafting $firemaking \
+🧙 ↗️ 🌳 \
+$magic $fletching $woodcutting \
+🔣 💀 🌻 \
+$runecraft $slayer $farming \
+🏠 🐾 \
+$construction $hunter $total
