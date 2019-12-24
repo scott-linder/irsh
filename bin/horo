@@ -1,0 +1,27 @@
+#!usr/bin/env python3
+
+from bs4 import BeautifulSoup
+import json
+import os
+import sys
+import urllib.parse
+import urllib.request
+
+self = os.path.basename(sys.argv[0])
+
+if len(sys.argv) != 2:
+    sys.stderr.write(f"{self}: Invalid commandline\n")
+    sys.exit(1)
+
+sign = sys.argv[1]
+
+try:
+    api = "https://www.astrology.com/us/horoscope/daily-extended.aspx?"
+    params = urllib.parse.urlencode({ 'sign': sign })
+    url = api + params
+    html = urllib.request.urlopen(url).read()
+    soup = BeautifulSoup(html, 'html.parser')
+    sys.stdout.write(soup.find('span', class_='date').next_sibling.strip())
+except:
+    sys.stderr.write(f"{self}: Could not fetch horoscope for {sign}\n")
+    sys.exit(1)
