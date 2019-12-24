@@ -7,10 +7,11 @@ for path in $argv
     if test $path = -
         set paths $paths -
     else
-        set paths $paths (lib/path $path)
-        if not test -f $paths[-1]
-            printf "%s: %s: No such file\n" $self $path >&2
-            exit 1
+        # This is the default command when init doesn't find something in bin/,
+        # so we want to just quietly ignore missing files.
+        set true_path (lib/path $path)
+        if test -f $true_path
+            set paths $paths $true_path
         end
     end
 end
