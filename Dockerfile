@@ -23,7 +23,6 @@ RUN mkdir /usr/src/cowsay-buster \
     && ar x cowsay.deb data.tar.xz \
     && tar xfJ data.tar.xz --strip-components=5 -C /usr/local/share/cows/ -- ./usr/share/cowsay/cows/
 
-
 COPY cows/* /usr/local/share/cows/
 
 WORKDIR /irsh
