@@ -11,7 +11,8 @@ import subprocess
 import sys
 import glob
 import getpass
-from matrix_client.client import MatrixClient
+import asyncio
+from nio import AsyncClient, ClientConfig, InviteEvent, RoomMessageText, SyncError
 
 def is_ignored(username):
     try:
@@ -110,56 +111,6 @@ def ensure_dir(d):
     except OSError:
         pass
 
-def room_message_listener(e):
-    nick = e['sender']
-    if is_ignored(nick):
-        return
-    channel = e['room_id']
-    msg = e['content']['body']
-    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
-
-    ensure_dir(path.chan_path(channel, ''))
-
-    for f in glob.glob('lib/filter/*'):
-        argv  = [f, msg]
-        try:
-            subprocess.Popen(argv, env=env).communicate()
-        except PermissionError:
-            pass
-
-    if msg.startswith(LEADER):
-        commandline = msg[len(LEADER):]
-        status, stdout, stderr = run(commandline, env)
-        log.info('command:{} status:{} stdout:{} stderr:{}'.format(repr(commandline), status, repr(stdout), repr(stderr)))
-        stdout = stdout.rstrip()
-        stderr = stderr.rstrip()
-        response = stdout
-        if stdout and stderr:
-            response += "\n"
-        response += stderr
-        if response:
-            fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
-            client.get_rooms()[channel].send_html(fmt.format(html.escape(response)), body=response)
-        with open('var/status', 'w') as f:
-            f.write('{}\n'.format(status))
-
-def event_listener(e):
-    log.info('event:{}'.format(e))
-    try:
-        if e['type'] == 'm.room.message' and e['content']['msgtype'] == 'm.text':
-            room_message_listener(e)
-    except KeyError as k:
-        log.error("Missing key {} in message: {}".format(k, e))
-    except Exception as x:
-        log.error("Squashing exception: {}".format(x))
-
-def invite_listener(room_id, state):
-    log.info('invite:{}'.format(room_id))
-    client.join_room(room_id)
-
-def leave_listener(room_id, room):
-    log.info('leave:{}'.format(room_id))
-
 log = logging.getLogger(__name__)
 log.addHandler(logging.StreamHandler(sys.stderr))
 log.setLevel(logging.DEBUG)
@@ -181,13 +132,62 @@ TIMEOUT = int(config['timeout'])
 ensure_dir('var')
 ensure_dir('var/root')
 
-client = MatrixClient(URL)
-try:
-    client.register_with_password(username=USERNAME, password=PASSWORD)
-except:
-    pass
-client.login(username=USERNAME, password=PASSWORD)
-client.add_listener(event_listener)
-client.add_invite_listener(invite_listener)
-client.add_leave_listener(leave_listener)
-client.listen_forever()
+client = AsyncClient(URL, USERNAME)
+
+async def room_message_text_callback(room, event):
+    log.info("message:{}".format(event))
+
+    nick = event.sender
+    if is_ignored(nick):
+        return
+    channel = room.room_id
+    msg = event.body
+    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
+
+    ensure_dir(path.chan_path(channel, ''))
+
+    for f in glob.glob('lib/filter/*'):
+        argv  = [f, msg]
+        try:
+            subprocess.Popen(argv, env=env).communicate()
+        except PermissionError:
+            pass
+
+    if msg.startswith(LEADER):
+        commandline = msg[len(LEADER):]
+        status, stdout, stderr = run(commandline, env)
+        with open('var/status', 'w') as f:
+            f.write('{}\n'.format(status))
+        log.info('command:{} status:{} stdout:{} stderr:{}'.format(repr(commandline), status, repr(stdout), repr(stderr)))
+        stdout = stdout.rstrip()
+        stderr = stderr.rstrip()
+        response = stdout
+        if stdout and stderr:
+            response += "\n"
+        response += stderr
+        if response:
+            fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
+            content = {
+                "body": response,
+                "msgtype": "m.text",
+                "format": "org.matrix.custom.html",
+                "formatted_body": fmt.format(html.escape(response)),
+            }
+            await client.room_send(room_id=room.room_id, message_type="m.room.message", content=content)
+
+async def invite_callback(source, sender):
+    log.info("invite:{}".format(source.room_id))
+    await client.join(source.room_id)
+
+async def login_and_sync_forever():
+    await client.login(PASSWORD)
+    # This extra sync is a hack to avoid seeing every event since our
+    # (currently non-existent) saved sync token. We aren't even bothering with
+    # saving a sync_token yet because it requires e2e (not sure why) and there
+    # is no olm-dev package in our version of alpine (there is one in edge).
+    await client.sync(30000)
+    client.add_event_callback(room_message_text_callback, RoomMessageText)
+    client.add_event_callback(invite_callback, InviteEvent)
+    await client.sync_forever(30000)
+
+asyncio.run(login_and_sync_forever())
