@@ -23,9 +23,20 @@ function corpus
     or exit 1
 end
 
-for i in (seq $words)
-     corpus $argv | tr '-' ' ' | shuf -n1 | \
-        awk '{ srand(); printf "%s ", $(int(rand()*100)%(NF-1)+1); }'
+function random_line
+    corpus $argv | sed '/^[[:space:]]*$/d' | tr '-' ' ' | shuf -n1
 end
 
-corpus $argv | tr '-' ' ' | shuf -n1 | awk '{ print $(NF) }'
+for i in (seq $words)
+    random_line $argv \
+        | awk '{
+            if (NF == 1) {
+                printf "%s ", $1;
+            } else {
+                srand();
+                printf "%s ", $(int(rand()*100)%(NF-1)+1);
+            }
+        }'
+end
+
+random_line $argv | awk '{ print $(NF) }'
