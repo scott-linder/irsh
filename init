@@ -142,7 +142,7 @@ async def room_message_text_callback(room, event):
         return
     channel = room.room_id
     msg = event.body
-    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] }
+    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] , 'PYTHONPATH': '.' }
 
     ensure_dir(path.chan_path(channel, ''))
 

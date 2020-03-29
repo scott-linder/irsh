@@ -1,0 +1,4 @@
+[file]
+
+Generate a sentence using a markov chain generator (https://github.com/jsvine/markovify)
+on the contents of file or standard input.
