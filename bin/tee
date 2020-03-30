@@ -1,0 +1,14 @@
+#!/usr/bin/fish
+
+set self (basename (status -f))
+
+set paths
+for path in $argv
+    set paths $paths (lib/path $path)
+    if test -d $paths[-1]
+        printf "%s: %s: Is a directory\n" $self $path >&2
+        exit 1
+    end
+end
+
+tee -a -- $paths
