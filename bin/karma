@@ -3,7 +3,7 @@
 . lib/sed.fish
 
 set self (basename (status -f))
-argparse -n$self v g r n= a= b= -- $argv >/dev/null ^&1
+argparse -n$self g r n= a= b= -- $argv >/dev/null ^&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1
@@ -47,8 +47,4 @@ set minus (awk "\$1 > $after && \$1 < $before { print }" $files \
             | grep $grep_flags "$argv")
 set total (math $plus-$minus)
 
-if set -q _flag_v[1]
-    printf "%s (+%s/-%s)\n" $total $plus $minus
-else
-    printf "%s" $total
-end
+printf "%s (+%s/-%s)\n" $total $plus $minus

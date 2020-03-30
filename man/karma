@@ -1,8 +1,7 @@
-[-v] [-g] [-r] [-n nick] [-a date] [-b date] term
+[-g] [-r] [-n nick] [-a date] [-b date] term
 
 Return karma for term in current channel.
 
-    -v display ++'s an --'s
     -g searches all channels
     -r term is interpreted an extended regexp
     -n only searches karma given by nick
