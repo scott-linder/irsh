@@ -36,13 +36,18 @@ Create a configuration file `etc/irsh.ini`:
 
 The leader will prefix all commands.
 
-Start irsh by running `init` and then invite the bot to join rooms.
+I am not particularly disciplined about documenting how to set up the
+environment, so I've just included a `Dockerfile` based on Alpine which I am
+forced to keep up to date. Please use that, or set up an equivalent environment
+and then run `init` from the root of the repository.
+
+The bot will join any rooms it is invited to.
 
 Overview
 --------
 
 The bot's core (`init`) is written in Python3 and requires only the
-`matrix_client` library.
+`matrix_nio` library.
 
 The rest of the bot is intended to be written in Unix shell, specifically
 [fish](http://fishshell.com/).
@@ -57,8 +62,7 @@ The layout of the source directory is similar to a modern Unix filesystem:
     etc/ - configuration
     lib/ - libraries and utility functions (for both `init` and commands)
         filter/ - filters run on all messages
-    usr/ - static files
-        man/ - man pages
+    man/ - man pages
     var/ - dynamic files
         root/ - user "filesystem" root
 
