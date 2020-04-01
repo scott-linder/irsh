@@ -27,5 +27,7 @@ RUN mkdir /usr/src/cowsay-buster \
 
 COPY cows/* /usr/local/share/cows/
 
+RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+
 WORKDIR /irsh
 CMD /irsh/init

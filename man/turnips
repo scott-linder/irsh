@@ -1,0 +1,5 @@
+[count]
+
+If count is provided, update your island's current buy price for turnips.
+
+Otherwise, print a sorted list of all recorded prices that are still active.

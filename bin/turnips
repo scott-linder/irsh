@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import os
+import json
+from operator import itemgetter
+from sys import argv, exit, stderr
+from datetime import datetime, time, timedelta
+
+self = os.path.basename(__file__)
+prices_filename = "var/turnips"
+
+def prices_parser(d):
+    return { k: [datetime.fromisoformat(v[0]), v[1]] for k, v in d.items() }
+
+try:
+    with open(prices_filename) as f:
+        prices = json.loads(f.read(), object_hook=prices_parser)
+except:
+    prices = {}
+
+now = datetime.today()
+today = now.date()
+
+if now.hour < 5:
+    yesterday = (now - timedelta(days=1)).date()
+    epoch = datetime.combine(yesterday, time(12))
+elif now.hour < 12:
+    epoch = datetime.combine(today, time(5))
+else:
+    epoch = datetime.combine(today, time(12))
+
+if len(argv) == 1:
+    valid = []
+    for name, v in prices.items():
+        dt, count = v
+        if (dt - epoch).total_seconds() >= 0:
+            valid.append((name, count))
+    list.sort(valid, key=itemgetter(1), reverse=True)
+    for v in valid:
+        print("{0[0]} {0[1]}".format(v))
+elif len(argv) == 2:
+    try:
+        prices[os.environ['NICK']] = [now, int(argv[1])]
+    except ValueError:
+        print('{}: {}: Not an integer'.format(self, argv[1]))
+        exit(1)
+else:
+    print('{}: Invalid commandline'.format(self), file=stderr)
+    exit(1)
+
+with open(prices_filename, mode='w') as f:
+    f.write(json.dumps(prices, default=str, sort_keys=True, indent=4))
