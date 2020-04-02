@@ -1,9 +1,3 @@
-[-g] [-r] [-n nick] [-a date] [-b date] term
+term
 
-Return karma for term in current channel.
-
-    -g searches all channels
-    -r term is interpreted an extended regexp
-    -n only searches karma given by nick
-    -a limits results to karma given after date
-    -b limits results to karma given before date
+Print karma for term.

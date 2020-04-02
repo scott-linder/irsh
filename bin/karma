@@ -1,50 +1,22 @@
-#!/usr/bin/fish
+#!/usr/bin/env python3
 
-. lib/sed.fish
+import os
+import sqlite3
+from sys import argv, exit, stderr
 
-set self (basename (status -f))
-argparse -n$self g r n= a= b= -- $argv >/dev/null ^&1
-or begin
-    printf "%s: Invalid commandline\n" $self >&2
-    exit 1
-end
+self = os.path.basename(__file__)
 
-if set -q _flag_g[1]
-    set files var/karma/*
-else
-    set files var/karma/$CHAN
-end
+conn = sqlite3.connect("var/irsh.sqlite3")
+c = conn.cursor()
 
-if set -q _flag_r[1]
-    set grep_flags -cE
-else
-    set grep_flags -cxF
-end
+if len(argv) != 2:
+    print('{}: Invalid commandline'.format(self), file=stderr)
+    exit(1)
 
-if set -q _flag_n
-    set nick_regexp (sed_escape_regexp $_flag_n)
-else
-    set nick_regexp '\S\+'
-end
+try:
+    incs, decs = c.execute('SELECT incs, decs FROM karma WHERE term = ?',
+                           (argv[1],)).fetchone()
+except:
+    incs, decs = 0, 0
 
-if set -q _flag_a
-    set after (date -d $_flag_a '+%s')
-else
-    set after 0
-end
-
-if set -q _flag_b
-    set before (date -d $_flag_b '+%s')
-else
-    set before (date '+%s')
-end
-
-set plus  (awk "\$1 > $after && \$1 < $before { print }" $files \
-            | sed -n "s/\S\+ $nick_regexp ++ \(.*\)/\1/p" \
-            | grep $grep_flags "$argv")
-set minus (awk "\$1 > $after && \$1 < $before { print }" $files \
-            | sed -n "s/\S\+ $nick_regexp -- \(.*\)/\1/p" \
-            | grep $grep_flags "$argv")
-set total (math $plus-$minus)
-
-printf "%s (+%s/-%s)\n" $total $plus $minus
+print("{} (+{}/-{})".format(incs - decs, incs, decs))

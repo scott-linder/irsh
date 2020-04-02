@@ -1,17 +1,33 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
 
-# Regex from https://github.com/ashafer01/Nextrastout/blob/master/functions/parse_karma.php
+import re
+import sys
+import sqlite3
 
-mkdir "var/karma";
+# Regex lifted from https://github.com/ashafer01/Nextrastout
+patterns = [re.compile(r'\b([!-&*-~]+?)(\+\+|--)(?![!-~])'),
+            re.compile(r'\(([ -~]+?)\)(\+\+|--)(?![!-~])')]
 
-open ($f, '>>', "var/karma/$ENV{'CHAN'}");
-$_ = join(' ', @ARGV);
-$t = time;
+conn = sqlite3.connect("var/irsh.sqlite3")
+c = conn.cursor()
 
-my %seen;
-while (/\b([!-&*-~]+?)(\+\+|--)(?![!-~])/cg ||
-       /\(([ -~]+?)\)(\+\+|--)(?![!-~])/g) {
-    if (!$seen{"$2"}++) {
-        print $f "$t $ENV{'NICK'} $2 $1\n";
-    }
-}
+c.execute('''
+    CREATE TABLE IF NOT EXISTS karma (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        term TEXT UNIQUE,
+        incs INT DEFAULT 0,
+        decs INT DEFAULT 0
+    )''')
+
+for p in patterns:
+    for m in re.finditer(p, ' '.join(sys.argv[1:])):
+        if (m.group(2) == "++"):
+            c.execute('''
+                INSERT INTO karma(term, incs) VALUES(?, 1)
+                ON CONFLICT(term) DO UPDATE SET incs=incs+1''', (m.group(1),))
+        else:
+            c.execute('''
+                INSERT INTO karma(term, decs) VALUES(?, 1)
+                ON CONFLICT(term) DO UPDATE SET decs=decs+1''', (m.group(1),))
+
+conn.commit()
