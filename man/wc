@@ -1,6 +1,7 @@
-[-c] [-w] [file]...
+[-l|-c|-w] [file]...
 
 Count lines of files or stdin
 
+    -l counts lines (default)
     -c counts bytes instead
     -w counts words instead

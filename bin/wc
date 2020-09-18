@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 set self (basename (status -f))
-argparse -n$self -xc,w c w -- $argv >/dev/null ^&1
+argparse -n$self -xl,c,w l c w -- $argv >/dev/null ^&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1
