@@ -1,0 +1,6 @@
+stock-symbol...
+
+Display stock ticker for a list of symbols.
+
+Output format:
+SYMBOL  PRICE   CHANGE  %CHANGE [* for non-regular market]

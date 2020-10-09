@@ -1,0 +1,91 @@
+#!/bin/sh
+
+# This is a modified copy of https://github.com/pstadler/ticker.sh developed by
+# Patrick Stadler.
+#
+# The license is reproduced below:
+#
+# Copyright (C) 2017 by Patrick Stadler
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+set -e
+
+SELF="$(basename "$0")"
+
+LANG=C
+LC_NUMERIC=C
+
+SYMBOLS="$@"
+
+if [ -z "$SYMBOLS" ]; then
+  printf "%s: Invalid commandline\n" "$SELF" >&2
+  exit 1
+fi
+
+API_ENDPOINT="https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com"
+FIELDS="symbol,marketState,regularMarketPrice,regularMarketChange,regularMarketChangePercent,preMarketPrice,preMarketChange,preMarketChangePercent,postMarketPrice,postMarketChange,postMarketChangePercent"
+
+results=$(curl -sSL -G "$API_ENDPOINT" \
+    --data-urlencode "fields=$FIELDS" \
+    --data-urlencode "symbols=$(echo "$SYMBOLS" | tr ' ' ',')" \
+  | jq '.quoteResponse .result')
+
+query () {
+  echo $results | jq -r ".[] | select(.symbol == \"$1\") | .$2"
+}
+
+for symbol in $(echo "$SYMBOLS" | tr '[:lower:]' '[:upper:]'); do
+  marketState="$(query $symbol 'marketState')"
+
+  if [ -z $marketState ]; then
+    printf 'No results for symbol "%s"\n' $symbol
+    continue
+  fi
+
+  preMarketChange="$(query $symbol 'preMarketChange')"
+  postMarketChange="$(query $symbol 'postMarketChange')"
+
+  if [ $marketState = "PRE" ] \
+    && [ $preMarketChange != "0" ] \
+    && [ $preMarketChange != "null" ]; then
+    nonRegularMarketSign='*'
+    price=$(query $symbol 'preMarketPrice')
+    diff=$preMarketChange
+    percent=$(query $symbol 'preMarketChangePercent')
+  elif [ $marketState != "REGULAR" ] \
+    && [ $postMarketChange != "0" ] \
+    && [ $postMarketChange != "null" ]; then
+    nonRegularMarketSign='*'
+    price=$(query $symbol 'postMarketPrice')
+    diff=$postMarketChange
+    percent=$(query $symbol 'postMarketChangePercent')
+  else
+    nonRegularMarketSign=''
+    price=$(query $symbol 'regularMarketPrice')
+    diff=$(query $symbol 'regularMarketChange')
+    percent=$(query $symbol 'regularMarketChangePercent')
+  fi
+
+  if [ "$price" != "null" ]; then
+    printf "%-10s%8.2f" $symbol $price
+    printf "%10.2f%12s" $diff $(printf "(%.2f%%)" $percent)
+    printf " %s\n" "$nonRegularMarketSign"
+  fi
+done
