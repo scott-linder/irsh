@@ -26,4 +26,4 @@ else
 end
 
 # FIXME: not sure why there is some noise on stderr
-ansiweather -a no -l $loc $_flag_F[1] $flag_f $flag_u ^/dev/null | sed 's/^\s\+\(.*\)/\1/'
+ansiweather -a false -s true -l $loc $_flag_F[1] $flag_f $flag_u ^/dev/null | sed 's/^\s\+\(.*\)/\1/'
