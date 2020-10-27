@@ -117,7 +117,7 @@ def handle_message(nick, channel, msg):
     if is_ignored(nick):
         return
 
-    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] , 'PYTHONPATH': '.' }
+    env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] , 'PYTHONPATH': '.', 'HOME': '/root' }
 
     ensure_dir(path.chan_path(channel, ''))
 
