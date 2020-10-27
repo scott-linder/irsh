@@ -6,19 +6,20 @@ Internet Relay SHell
 Etymology
 ---------
 
-This is actually a [Matrix](https://matrix.org/) bot. The name is a hold-over
-from when this was an IRC bot, and because "Internet Relay Shell" sounds cooler
-than "Matrix Shell".
+This is actually a [Matrix](https://matrix.org/) and
+[Slack](https://slack.com/) bot. The name is a hold-over from when this was an
+IRC bot, and because "Internet Relay Shell" sounds cooler than "Matrix and
+Slack Shell".
 
 Rationale
 ---------
 
-Both Matrix and Unix shells share a largely text-based interface. Many Matrix
-bots follow the pattern of invoking commands and passing arguments, but do not
-allow for composition of commands. The Unix shell (through pipes and
-redirection) makes composition of commands and filters simple.
+Chat rooms and Unix shells share a largely text-based interface. Many chat bots
+follow the pattern of invoking commands and passing arguments, but do not allow
+for composition of commands. The Unix shell (through pipes and redirection)
+makes composition of commands and filters simple.
 
-Thus irsh hopes to achieve the same, but in the restricted context of a Matrix
+Thus irsh hopes to achieve the same, but in the restricted context of a chat
 room, and with the reuse of as many Unix utilities as possible (with only
 slight interface modifications).
 
@@ -28,11 +29,20 @@ Usage
 Create a configuration file `etc/irsh.ini`:
 
     [irsh]
-    url = localhost
-    username = irsh
     leader = $
     maxpipes = 5
     timeout = 5
+
+    # Supply parameters for Matrix ...
+    kind = matrix
+    url = localhost
+    username = irsh
+    password = MATRIX_PASSWORD
+
+    # ... or for Slack
+    kind = slack
+    token = SLACK_API_TOKEN
+
 
 The leader will prefix all commands.
 
@@ -46,8 +56,8 @@ The bot will join any rooms it is invited to.
 Overview
 --------
 
-The bot's core (`init`) is written in Python3 and requires only the
-`matrix_nio` library.
+The bot's core (`init`) is written in Python3 and requires (at a minimum, see
+the `Dockerfile`) the `matrix_nio` and  `slackclient` libraries.
 
 The rest of the bot is intended to be written in Unix shell, specifically
 [fish](http://fishshell.com/).

@@ -13,6 +13,8 @@ import glob
 import getpass
 import asyncio
 from nio import AsyncClient, ClientConfig, InviteEvent, RoomMessageText, SyncError
+from slack import RTMClient
+from slack.errors import SlackApiError
 
 def is_ignored(username):
     try:
@@ -111,37 +113,10 @@ def ensure_dir(d):
     except OSError:
         pass
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler(sys.stderr))
-log.setLevel(logging.DEBUG)
-
-config = configparser.ConfigParser()
-config.read('etc/irsh.ini')
-config = config['irsh']
-URL = config['url']
-USERNAME = config['username']
-if 'password' in config:
-    log.warning('using plaintext password from config file')
-    PASSWORD = config['password']
-else:
-    PASSWORD = getpass.getpass()
-LEADER = config['leader']
-MAXPIPES = int(config['maxpipes'])
-TIMEOUT = int(config['timeout'])
-
-ensure_dir('var')
-ensure_dir('var/root')
-
-client = AsyncClient(URL, USERNAME)
-
-async def room_message_text_callback(room, event):
-    log.info("message:{}".format(event))
-
-    nick = event.sender
+def handle_message(nick, channel, msg):
     if is_ignored(nick):
         return
-    channel = room.room_id
-    msg = event.body
+
     env = { 'NICK': nick, 'CHAN': channel, 'PATH': os.environ['PATH'] , 'PYTHONPATH': '.' }
 
     ensure_dir(path.chan_path(channel, ''))
@@ -165,15 +140,31 @@ async def room_message_text_callback(room, event):
         if stdout and stderr:
             response += "\n"
         response += stderr
-        if response:
-            fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
-            content = {
-                "body": response,
-                "msgtype": "m.text",
-                "format": "org.matrix.custom.html",
-                "formatted_body": fmt.format(html.escape(response)),
-            }
-            await client.room_send(room_id=room.room_id, message_type="m.room.message", content=content)
+        return response
+    return None
+
+# Matrix callbacks
+
+async def room_message_text_callback(room, event):
+    log.info("message:{}".format(event))
+
+    nick = event.sender
+    if is_ignored(nick):
+        return
+    channel = room.room_id
+    msg = event.body
+
+    response = handle_message(nick, channel, msg)
+
+    if response:
+        fmt = '<pre><code>{}</code></pre>' if '\n' in response else '<code>{}</code>'
+        content = {
+            "body": response,
+            "msgtype": "m.text",
+            "format": "org.matrix.custom.html",
+            "formatted_body": fmt.format(html.escape(response)),
+        }
+        await client.room_send(room_id=room.room_id, message_type="m.room.message", content=content)
 
 async def invite_callback(source, sender):
     log.info("invite:{}".format(source.room_id))
@@ -190,4 +181,58 @@ async def login_and_sync_forever():
     client.add_event_callback(invite_callback, InviteEvent)
     await client.sync_forever(30000)
 
-asyncio.run(login_and_sync_forever())
+# Slack callbacks
+
+@RTMClient.run_on(event='message')
+def run_on_message(**payload):
+    try:
+        data = payload['data']
+        web_client = payload['web_client']
+        if 'text' in data:
+            user = data['user']
+            channel = data['channel']
+            text = html.unescape(data.get('text', []))
+            thread_ts = data['ts']
+            response = handle_message(user, channel, text)
+            if response:
+                web_client.chat_postMessage(
+                    channel=channel,
+                    text=response,
+                    thread_ts=thread_ts
+                )
+    except SlackApiError as e:
+        log.error(f"Got an error: {e.response['error']}")
+    except Exception as e:
+        log.error(f"{e}")
+
+# Globals and other ugly, stateful stuff
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler(sys.stderr))
+log.setLevel(logging.DEBUG)
+
+ensure_dir('var')
+ensure_dir('var/root')
+
+config = configparser.ConfigParser()
+config.read('etc/irsh.ini')
+config = config['irsh']
+KIND = config['kind']
+LEADER = config['leader']
+MAXPIPES = int(config['maxpipes'])
+TIMEOUT = int(config['timeout'])
+if KIND == 'matrix':
+    URL = config['url']
+    USERNAME = config['username']
+    if 'password' in config:
+        log.warning('using plaintext password from config file')
+        PASSWORD = config['password']
+    else:
+        PASSWORD = getpass.getpass()
+    client = AsyncClient(URL, USERNAME)
+    asyncio.run(login_and_sync_forever())
+elif KIND == 'slack':
+    TOKEN=config['token']
+    RTMClient(token=TOKEN).start()
+else:
+    log.exception('unknown kind in config file')
