@@ -29,25 +29,33 @@ def is_ignored(username):
 def sanitize_path(path):
     return path.replace('/', '')
 
-def run(commandline, env):
-    commands = [re.sub(r'\\\|', '|', s) for s in re.split(r'(?<!\\)\|', commandline)]
+def commands(words):
+    start = 0
+    for stop, word in enumerate(words):
+        if word == '|':
+            yield words[start:stop]
+            start = stop + 1
+    if start < len(words):
+        yield words[start:]
 
-    if len(commands)-1 > MAXPIPES:
-        return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES))
+def run(commandline, env):
+    try:
+        lexer = shlex.shlex(commandline, posix=True, punctuation_chars=True)
+        lexer.whitespace_split = True
+        words = list(lexer)
+    except ValueError as e:
+        return (255, '', str(e))
 
     processes = []
 
-    for i, command in enumerate(commands):
+    for i, argv in enumerate(commands(words)):
+        if i > MAXPIPES:
+            return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES))
 
         if i == 0:
             stdin = subprocess.DEVNULL
         else:
             stdin = processes[i - 1].stdout
-
-        try:
-            argv = shlex.split(command)
-        except ValueError as e:
-            return (255, '', str(e))
 
         if '>>' in argv:
             j = argv.index('>>')
