@@ -118,19 +118,3 @@ It is each command's responsibility to ensure undue access is not granted to
 the user. Specifically, path arguments which are accepted by the command *must*
 be filtered through `lib/path`, and care must be taken when invoking other
 commands that arguments which might be interpreted as flags are not.
-
-Bugs
-----
-
-### Some strings are un-representable
-
-It is impossible to represent the literal string containing only the pipe
-character (`'|'`), and the literal string containing two right angle brackets
-(`'>>'`). The quoting/escaping context of these strings is lost within the
-`shlex` module when in `posix=True` mode, and so they are interpreted by `irsh`
-as if they were not quoted/escaped. This was accepted as a reasonable trade-off
-for now, to avoid duplicating the `shlex` module, or parts of the `posix=True`
-mode on top of the `posix=False` output.
-
-Any other string containing these as a substring is unaffected. For example,
-the strings `"foo|"` and `">>bar"` have no special semantics.

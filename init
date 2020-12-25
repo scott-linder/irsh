@@ -29,26 +29,28 @@ def is_ignored(username):
 def sanitize_path(path):
     return path.replace('/', '')
 
-def commands(words):
-    start = 0
-    for stop, word in enumerate(words):
-        if word == '|':
-            yield words[start:stop]
-            start = stop + 1
-    if start < len(words):
-        yield words[start:]
+def commands(tokens):
+    argv = []
+    for token in tokens:
+        if token.literal() == '|':
+            yield argv
+            argv = []
+        else:
+            argv.append(token)
+    if argv:
+        yield argv
 
 def run(commandline, env):
     try:
-        lexer = shlex.shlex(commandline, posix=True, punctuation_chars=True)
-        lexer.whitespace_split = True
-        words = list(lexer)
+        tokens = shlex.split(commandline)
     except ValueError as e:
         return (255, '', str(e))
 
     processes = []
 
-    for i, argv in enumerate(commands(words)):
+    for i, argv in enumerate(commands(tokens)):
+        log.info('argv:{}'.format(argv))
+
         if i > MAXPIPES:
             return (255, '', 'exceeded maximum number of pipes ({})'.format(MAXPIPES))
 
@@ -57,8 +59,14 @@ def run(commandline, env):
         else:
             stdin = processes[i - 1].stdout
 
-        if '>>' in argv:
-            j = argv.index('>>')
+        redir_at = None
+        for i, token in enumerate(reversed(argv)):
+            if token.literal() == '>>':
+                redir_at = i
+                break
+
+        if redir_at != None:
+            j = len(argv) - redir_at - 1
             argv.pop(j)
             try:
                 chan_path = path.chan_path(env['CHAN'], argv.pop(j))
