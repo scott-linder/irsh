@@ -1,0 +1,39 @@
+#!/usr/bin/fish
+
+set self (basename (status -f))
+
+function convert
+    env TZ=$argv[2] date --date="TZ=\"$argv[1]\" $argv[3]" '+%R %Z ' | tr -d '\n'
+end
+
+if test (count $argv) -ne 2
+    printf 'usage: tz HH:MM PT|MT|CT|ET\n' >&2
+    exit 1
+end
+
+set WHEN (echo "$argv[1]" | tr -dc [[:digit:]]:)
+set WHERE (echo "$argv[2]" | tr -dc [[:alpha:]] | tr [[:lower:]] [[:upper:]])
+
+switch $WHERE
+    case 'P*T'
+        set ZONE_FROM America/Los_Angeles
+    case 'M*T'
+        set ZONE_FROM America/Denver
+    case 'C*T'
+        set ZONE_FROM America/Chicago
+    case 'E*T'
+        set ZONE_FROM America/New_York
+    case '*'
+        printf 'unknown timezone, try PDT/CDT/EDT\n' >&2
+        exit 1
+end
+
+convert $ZONE_FROM $ZONE_FROM $WHEN
+printf '=> / '
+
+for ZONE_TO in America/Los_Angeles America/Denver America/Chicago America/New_York
+    convert $ZONE_FROM $ZONE_TO $WHEN
+    printf '/ '
+end
+printf '\n'
+

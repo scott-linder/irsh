@@ -1,6 +1,6 @@
 FROM python:3.8-alpine
 
-RUN apk add --update fish perl figlet fortune jq tzdata curl binutils \
+RUN apk add --update fish perl figlet fortune jq tzdata curl binutils coreutils \
     && apk add --update --virtual build-deps gcc libc-dev \
     && pip3 install --no-cache-dir matrix_nio bs4 markovify slackclient \
     && apk del build-deps \

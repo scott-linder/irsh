@@ -1,0 +1,5 @@
+HH:MM PT|MT|CT|ET
+
+For a given time in 24-hour format, HH:MM, in the input timezone specified by
+PT (Pacific Time), MT (Mountain Time), CT (Central Time), or ET (Eastern Time),
+print the equivalent point in time for all other timezones.
