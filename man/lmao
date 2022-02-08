@@ -1,0 +1,5 @@
+[-u] [file]...
+
+Append ", lmao" to every line of files or stdin, and print to stdout.
+
+    -u append ", LMAO" instead.

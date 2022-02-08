@@ -1,0 +1,30 @@
+#!/usr/bin/fish
+
+set self (basename (status -f))
+
+argparse -n$self u -- $argv >/dev/null ^&1
+or begin
+    printf "%s: Invalid commandline\n" $self >&2
+    exit 1
+end
+
+if set -q _flag_u
+    set ending LMAO
+else
+    set ending lmao
+end
+
+set paths
+for path in $argv
+    if test $path = -
+        set paths $paths -
+    else
+        set paths $paths (lib/path $path)
+        if not test -f $paths[-1]
+            printf "%s: %s: No such file or directory\n" $self $path >&2
+            exit 1
+        end
+    end
+end
+
+sed "s/[.!?, \t]*\$/, $ending/" $paths
