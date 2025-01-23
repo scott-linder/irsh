@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 set self (basename (status -f))
-argparse -n$self -xF,f F 'f/days=!_validate_int --min 1' u= -- $argv >/dev/null ^&1
+argparse -n$self -xF,f F 'f/days=!_validate_int --min 1' u= -- $argv >/dev/null 2>&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1

@@ -3,7 +3,7 @@
 . lib/sudo.fish
 
 set self (basename (status -f))
-argparse -n$self l -- $argv >/dev/null ^&1
+argparse -n$self l -- $argv >/dev/null 2>&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1

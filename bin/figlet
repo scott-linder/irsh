@@ -5,7 +5,7 @@ set fonts banner big block bubble digital ivrit lean mini mnemonic \
 
 set self (basename (status -f))
 argparse -n$self -xf,r f= r j= 'w/width=!_validate_int --min 0 --max 100' \
-    -- $argv >/dev/null ^&1
+    -- $argv >/dev/null 2>&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1

@@ -3,7 +3,7 @@
 # http://developer.wordnik.com/docs.html
 
 set self (basename (status -f))
-argparse -n$self -xd,t,a,r d t a r -- $argv >/dev/null ^&1
+argparse -n$self -xd,t,a,r d t a r -- $argv >/dev/null 2>&1
 or begin
     printf "%s: Invalid commandline\n" $self >&2
     exit 1
