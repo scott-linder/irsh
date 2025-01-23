@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.11-alpine
 
 RUN apk add --update fish perl figlet fortune jq tzdata curl binutils coreutils \
     && apk add --update --virtual build-deps gcc libc-dev \
